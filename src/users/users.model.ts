@@ -11,25 +11,36 @@ import {
   UpdatedAt,
 } from 'sequelize-typescript';
 
-import { Products } from '../products/products.model';
-import { UserRole } from '../users/user-role.enum';
+import { Products } from 'src/products/products.model';
+import { UserRole } from '../common/enums/user-role.enum';
 
 @Table({
   tableName: 'users',
   timestamps: true,
+  paranoid: false,
+  underscored: false,
 })
 export class Users extends Model<Users> {
   @PrimaryKey
   @AutoIncrement
-  @Column(DataType.INTEGER)
+  @Column(DataType.UUID)
   declare id: number;
-
+  @Column({
+    type: DataType.STRING(255),
+    allowNull: false,
+  })
+  declare password: string;
   @Unique
   @Column({
     type: DataType.STRING(50),
     allowNull: false,
   })
   declare code: string;
+
+  @Column({
+    type: DataType.STRING(255),
+    allowNull: false,
+  })
 
   @Column({
     type: DataType.STRING(255),

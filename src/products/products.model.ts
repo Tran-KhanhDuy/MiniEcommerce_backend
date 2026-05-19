@@ -22,8 +22,9 @@ export interface ProductCreationAttributes {
   tableName: 'products',
   timestamps: false,
 })
-// 2. Add the Creation Attributes interface here
+
 export class Products extends Model<Products, ProductCreationAttributes> {
+
   @PrimaryKey
   @AutoIncrement
   @Column(DataType.INTEGER)
@@ -58,3 +59,4 @@ export class Products extends Model<Products, ProductCreationAttributes> {
   @BelongsTo(() => Users)
   declare user: Users;
 }
+
