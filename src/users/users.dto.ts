@@ -130,3 +130,14 @@ export class QueryUserDto {
   @IsOptional()
   search?: string;
 }
+
+export class GetUsersFilterDto {
+  @ApiPropertyOptional({
+    description: 'Filter by role',
+    enum: UserRole,
+    example: 'User',
+  })
+  @IsEnum(UserRole)
+  @IsOptional()
+  role?: UserRole;
+}
