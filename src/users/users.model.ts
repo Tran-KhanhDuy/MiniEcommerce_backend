@@ -23,13 +23,9 @@ import { UserRole } from '../common/enums/user-role.enum';
 export class Users extends Model<Users> {
   @PrimaryKey
   @AutoIncrement
-  @Column(DataType.UUID)
+  @Column(DataType.INTEGER)
   declare id: number;
-  @Column({
-    type: DataType.STRING(255),
-    allowNull: false,
-  })
-  declare password: string;
+
   @Unique
   @Column({
     type: DataType.STRING(50),
@@ -60,6 +56,19 @@ export class Users extends Model<Users> {
     defaultValue: UserRole.USER,
   })
   declare role: UserRole;
+
+  @Column({
+    type: DataType.STRING(255),
+    allowNull: false,
+  })
+  declare password: string;
+
+  @Column({
+    type: DataType.BOOLEAN,
+    allowNull: false,
+    defaultValue: true,
+  })
+  declare canLogin: boolean;
 
   @CreatedAt
   @Column(DataType.DATE)
