@@ -7,7 +7,7 @@ import { InjectModel } from '@nestjs/sequelize';
 import { Op, WhereOptions } from 'sequelize';
 
 import { Users } from '../users/users.model';
-import { CreateProductDto, QueryProductDto } from './products.dto';
+import { CreateProductDto, QueryProductDto, UpdateProductDto } from './products.dto';
 import { Products } from './products.model';
 
 @Injectable()
@@ -20,7 +20,7 @@ export class ProductsService {
         private productsModel: typeof Products,
     ) { }
 
-    async create(createProductDto: CreateProductDto) {
+    async createProduct(createProductDto: CreateProductDto) {
         const user = await this.usersModel.findByPk(createProductDto.userId);
 
         if (!user) {
@@ -106,4 +106,33 @@ export class ProductsService {
 
         return product;
     }
+
+    async updateProduct(id: number, updateProductDto: UpdateProductDto) {
+        const product = await this.productsModel.findByPk(id);
+
+        if (!product) {
+            throw new NotFoundException('Product not found');
+        }
+
+        if (updateProductDto.userId) {
+            const user = await this.usersModel.findByPk(updateProductDto.userId);
+
+            if (!user) {
+                throw new BadRequestException('User does not exist');
+            }
+        }
+
+        await product.update({
+            name: updateProductDto.name ?? product.name,
+            description:
+                updateProductDto.description !== undefined
+                    ? updateProductDto.description
+                    : product.description,
+            price: updateProductDto.price ?? product.price,
+            userId: updateProductDto.userId ?? product.userId,
+        });
+          return this.findOne(id);
+
+    }
+
 }

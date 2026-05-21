@@ -16,7 +16,7 @@ export class LoginDto {
   })
   @IsString()
   @IsNotEmpty()
-  code: string;
+  code!: string;
 
   @ApiProperty({
     description: 'Password',
@@ -24,7 +24,7 @@ export class LoginDto {
   })
   @IsString()
   @IsNotEmpty()
-  password: string;
+  password!: string;
 }
 
 export class CreateUserDto {
@@ -35,7 +35,7 @@ export class CreateUserDto {
   @IsString()
   @IsNotEmpty()
   @MaxLength(50)
-  code: string;
+  code!: string;
 
   @ApiProperty({
     description: 'User name',
@@ -44,7 +44,7 @@ export class CreateUserDto {
   @IsString()
   @IsNotEmpty()
   @MaxLength(255)
-  name: string;
+  name!: string;
 
   @ApiProperty({
     description: 'User phone number',
@@ -53,7 +53,7 @@ export class CreateUserDto {
   @IsString()
   @IsNotEmpty()
   @MaxLength(20)
-  phone: string;
+  phone!: string;
 
   @ApiProperty({
     description: 'User role',
@@ -62,7 +62,7 @@ export class CreateUserDto {
   })
   @IsEnum(UserRole)
   @IsNotEmpty()
-  role: UserRole;
+  role!: UserRole;
 
   @ApiProperty({
     description: 'User password',
@@ -71,7 +71,7 @@ export class CreateUserDto {
   @IsString()
   @IsNotEmpty()
   @MaxLength(255)
-  password: string;
+  password!: string;
 }
 
 export class UpdateUserDto {

@@ -25,7 +25,7 @@ let ProductsService = class ProductsService {
         this.usersModel = usersModel;
         this.productsModel = productsModel;
     }
-    async create(createProductDto) {
+    async createProduct(createProductDto) {
         const user = await this.usersModel.findByPk(createProductDto.userId);
         if (!user) {
             throw new common_1.BadRequestException('User does not exist');
@@ -98,6 +98,27 @@ let ProductsService = class ProductsService {
             throw new common_1.NotFoundException('Product not found');
         }
         return product;
+    }
+    async updateProduct(id, updateProductDto) {
+        const product = await this.productsModel.findByPk(id);
+        if (!product) {
+            throw new common_1.NotFoundException('Product not found');
+        }
+        if (updateProductDto.userId) {
+            const user = await this.usersModel.findByPk(updateProductDto.userId);
+            if (!user) {
+                throw new common_1.BadRequestException('User does not exist');
+            }
+        }
+        await product.update({
+            name: updateProductDto.name ?? product.name,
+            description: updateProductDto.description !== undefined
+                ? updateProductDto.description
+                : product.description,
+            price: updateProductDto.price ?? product.price,
+            userId: updateProductDto.userId ?? product.userId,
+        });
+        return this.findOne(id);
     }
 };
 exports.ProductsService = ProductsService;

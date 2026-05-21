@@ -12,7 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Users = void 0;
 const sequelize_typescript_1 = require("sequelize-typescript");
 const products_model_1 = require("../products/products.model");
-const user_role_enum_1 = require("../users/user-role.enum");
+const user_role_enum_1 = require("../common/enums/user-role.enum");
 let Users = class Users extends sequelize_typescript_1.Model {
 };
 exports.Users = Users;
@@ -35,6 +35,10 @@ __decorate([
         type: sequelize_typescript_1.DataType.STRING(255),
         allowNull: false,
     }),
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.STRING(255),
+        allowNull: false,
+    }),
     __metadata("design:type", String)
 ], Users.prototype, "name", void 0);
 __decorate([
@@ -53,6 +57,21 @@ __decorate([
     __metadata("design:type", String)
 ], Users.prototype, "role", void 0);
 __decorate([
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.STRING(255),
+        allowNull: false,
+    }),
+    __metadata("design:type", String)
+], Users.prototype, "password", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({
+        type: sequelize_typescript_1.DataType.BOOLEAN,
+        allowNull: false,
+        defaultValue: true,
+    }),
+    __metadata("design:type", Boolean)
+], Users.prototype, "canLogin", void 0);
+__decorate([
     sequelize_typescript_1.CreatedAt,
     (0, sequelize_typescript_1.Column)(sequelize_typescript_1.DataType.DATE),
     __metadata("design:type", Date)
@@ -70,6 +89,8 @@ exports.Users = Users = __decorate([
     (0, sequelize_typescript_1.Table)({
         tableName: 'users',
         timestamps: true,
+        paranoid: false,
+        underscored: false,
     })
 ], Users);
 //# sourceMappingURL=users.model.js.map

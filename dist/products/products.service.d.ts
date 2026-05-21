@@ -1,11 +1,11 @@
 import { Users } from '../users/users.model';
-import { CreateProductDto, QueryProductDto } from './products.dto';
+import { CreateProductDto, QueryProductDto, UpdateProductDto } from './products.dto';
 import { Products } from './products.model';
 export declare class ProductsService {
     private usersModel;
     private productsModel;
     constructor(usersModel: typeof Users, productsModel: typeof Products);
-    create(createProductDto: CreateProductDto): Promise<Products>;
+    createProduct(createProductDto: CreateProductDto): Promise<Products>;
     findAll(query: QueryProductDto): Promise<{
         items: Products[];
         total: number;
@@ -14,4 +14,5 @@ export declare class ProductsService {
         totalPages: number;
     }>;
     findOne(id: number): Promise<Products>;
+    updateProduct(id: number, updateProductDto: UpdateProductDto): Promise<Products>;
 }

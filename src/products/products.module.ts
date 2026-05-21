@@ -10,6 +10,6 @@ import { ProductsService } from './products.service';
   imports: [SequelizeModule.forFeature([Products, Users])],
   controllers: [ProductsController],
   providers: [ProductsService],
-  exports: [ProductsService], // Export ProductsService if it needs to be used by other modules
+  exports: [ProductsService], 
 })
 export class ProductsModule {}

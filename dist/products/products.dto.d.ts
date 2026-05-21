@@ -10,3 +10,9 @@ export declare class QueryProductDto {
     userId?: number;
     search?: string;
 }
+export declare class UpdateProductDto {
+    name?: string;
+    description?: string;
+    price?: number;
+    userId?: number;
+}

@@ -1,4 +1,4 @@
-import { CreateProductDto, QueryProductDto } from './products.dto';
+import { CreateProductDto, QueryProductDto, UpdateProductDto } from './products.dto';
 import { ProductsService } from './products.service';
 export declare class ProductsController {
     private readonly productsService;
@@ -12,4 +12,5 @@ export declare class ProductsController {
         totalPages: number;
     }>;
     findOne(id: number): Promise<import("./products.model").Products>;
+    update(id: number, updateProductDto: UpdateProductDto): Promise<import("./products.model").Products>;
 }
