@@ -8,9 +8,9 @@ import { InjectModel } from '@nestjs/sequelize';
 import { compare } from 'bcryptjs';
 
 import { getLanguageValue } from 'src/common/helpers/language.helper';
-import { LoginDto } from './users.dto';
+import { CreateUserDto, LoginDto } from './users.dto';
 import { Users } from './users.model';
-
+import bcrypt from 'node_modules/bcryptjs';
 @Injectable()
 export class UsersService {
   constructor(
@@ -74,6 +74,40 @@ export class UsersService {
         phone: user.phone,
         role: user.role,
       },
+    };
+  }
+  async createUser(createUserDto: CreateUserDto, language = 'vi') {
+    const { code, name, phone, role, password } = createUserDto;
+
+    const existedUser = await this.usersModel.findOne({
+      where: {
+        code,
+      },
+    });
+
+    if (existedUser) {
+      const message = getLanguageValue(language, 'user_already_exists');
+      throw new BadRequestException(message);
+    }
+
+    const salt = await bcrypt.genSalt(
+      Number(process.env.BCRYPT_SALT_ROUNDS) || 10,
+    );
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    const newUser = await this.usersModel.create({
+      code,
+      name,
+      phone,
+      role,
+      password: hashedPassword,
+    });
+    return {
+      id: newUser.id,
+      code: newUser.code,
+      name: newUser.name,
+      phone: newUser.phone,
+      role: newUser.role,
     };
   }
 }
