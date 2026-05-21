@@ -14,17 +14,15 @@ import { Users } from '../users/users.model';
 export interface ProductCreationAttributes {
   name: string;
   userId: number;
-  description?: string | null; 
-  price?: number;              
+  description?: string | null;
+  price?: number;
 }
 
 @Table({
   tableName: 'products',
   timestamps: false,
 })
-
 export class Products extends Model<Products, ProductCreationAttributes> {
-
   @PrimaryKey
   @AutoIncrement
   @Column(DataType.INTEGER)
@@ -59,4 +57,3 @@ export class Products extends Model<Products, ProductCreationAttributes> {
   @BelongsTo(() => Users)
   declare user: Users;
 }
-

@@ -1,138 +1,140 @@
 import {
-    BadRequestException,
-    Injectable,
-    NotFoundException,
+  BadRequestException,
+  Injectable,
+  NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Op, WhereOptions } from 'sequelize';
 
 import { Users } from '../users/users.model';
-import { CreateProductDto, QueryProductDto, UpdateProductDto } from './products.dto';
+import {
+  CreateProductDto,
+  QueryProductDto,
+  UpdateProductDto,
+} from './products.dto';
 import { Products } from './products.model';
 
 @Injectable()
 export class ProductsService {
-    constructor(
-        @InjectModel(Users)
-        private usersModel: typeof Users,
+  constructor(
+    @InjectModel(Users)
+    private usersModel: typeof Users,
 
-        @InjectModel(Products)
-        private productsModel: typeof Products,
-    ) { }
+    @InjectModel(Products)
+    private productsModel: typeof Products,
+  ) {}
 
-    async createProduct(createProductDto: CreateProductDto) {
-        const user = await this.usersModel.findByPk(createProductDto.userId);
+  async createProduct(createProductDto: CreateProductDto) {
+    const user = await this.usersModel.findByPk(createProductDto.userId);
 
-        if (!user) {
-            throw new BadRequestException('User does not exist');
-        }
-
-        const product = await this.productsModel.create({
-            name: createProductDto.name,
-            description: createProductDto.description ?? null,
-            price: createProductDto.price ?? 0,
-            userId: createProductDto.userId,
-        });
-
-        return product;
+    if (!user) {
+      throw new BadRequestException('User does not exist');
     }
 
-    async findAll(query: QueryProductDto) {
-        const page = query.page || 1;
-        const limit = query.limit || 10;
-        const offset = (page - 1) * limit;
+    const product = await this.productsModel.create({
+      name: createProductDto.name,
+      description: createProductDto.description ?? null,
+      price: createProductDto.price ?? 0,
+      userId: createProductDto.userId,
+    });
 
-        const productWhere: WhereOptions<Products> = {};
+    return product;
+  }
 
-        if (query.userId) {
-            productWhere.userId = query.userId;
-        }
+  async findAll(query: QueryProductDto) {
+    const page = query.page || 1;
+    const limit = query.limit || 10;
+    const offset = (page - 1) * limit;
 
-        const userWhere = query.search
-            ? {
-                [Op.or]: [
-                    {
-                        name: {
-                            [Op.like]: `%${query.search}%`,
-                        },
-                    },
-                    {
-                        phone: {
-                            [Op.like]: `%${query.search}%`,
-                        },
-                    },
-                ],
-            }
-            : undefined;
+    const productWhere: WhereOptions<Products> = {};
 
-        const { rows, count } = await this.productsModel.findAndCountAll({
-            where: productWhere,
-            include: [
-                {
-                    model: Users,
-                    attributes: ['id', 'code', 'name', 'phone', 'role'],
-                    required: Boolean(query.search),
-                    where: userWhere,
-                },
-            ],
-            limit,
-            offset,
-            order: [['createdAt', 'DESC']],
-            distinct: true,
-        });
-
-        return {
-            items: rows,
-            total: count,
-            page,
-            limit,
-            totalPages: Math.ceil(count / limit),
-        };
+    if (query.userId) {
+      productWhere.userId = query.userId;
     }
 
-    async findOne(id: number) {
-        const product = await this.productsModel.findByPk(id, {
-            include: [
-                {
-                    model: Users,
-                    attributes: ['id', 'code', 'name', 'phone', 'role'],
-                },
-            ],
-        });
-
-        if (!product) {
-            throw new NotFoundException('Product not found');
+    const userWhere = query.search
+      ? {
+          [Op.or]: [
+            {
+              name: {
+                [Op.like]: `%${query.search}%`,
+              },
+            },
+            {
+              phone: {
+                [Op.like]: `%${query.search}%`,
+              },
+            },
+          ],
         }
+      : undefined;
 
-        return product;
+    const { rows, count } = await this.productsModel.findAndCountAll({
+      where: productWhere,
+      include: [
+        {
+          model: Users,
+          attributes: ['id', 'code', 'name', 'phone', 'role'],
+          required: Boolean(query.search),
+          where: userWhere,
+        },
+      ],
+      limit,
+      offset,
+      order: [['createdAt', 'DESC']],
+      distinct: true,
+    });
+
+    return {
+      items: rows,
+      total: count,
+      page,
+      limit,
+      totalPages: Math.ceil(count / limit),
+    };
+  }
+
+  async findOne(id: number) {
+    const product = await this.productsModel.findByPk(id, {
+      include: [
+        {
+          model: Users,
+          attributes: ['id', 'code', 'name', 'phone', 'role'],
+        },
+      ],
+    });
+
+    if (!product) {
+      throw new NotFoundException('Product not found');
     }
 
-    async updateProduct(id: number, updateProductDto: UpdateProductDto) {
-        const product = await this.productsModel.findByPk(id);
+    return product;
+  }
 
-        if (!product) {
-            throw new NotFoundException('Product not found');
-        }
+  async updateProduct(id: number, updateProductDto: UpdateProductDto) {
+    const product = await this.productsModel.findByPk(id);
 
-        if (updateProductDto.userId) {
-            const user = await this.usersModel.findByPk(updateProductDto.userId);
-
-            if (!user) {
-                throw new BadRequestException('User does not exist');
-            }
-        }
-
-        await product.update({
-            name: updateProductDto.name ?? product.name,
-            description:
-                updateProductDto.description !== undefined
-                    ? updateProductDto.description
-                    : product.description,
-            price: updateProductDto.price ?? product.price,
-            userId: updateProductDto.userId ?? product.userId,
-        });
-          return this.findOne(id);
-
+    if (!product) {
+      throw new NotFoundException('Product not found');
     }
 
+    if (updateProductDto.userId) {
+      const user = await this.usersModel.findByPk(updateProductDto.userId);
+
+      if (!user) {
+        throw new BadRequestException('User does not exist');
+      }
+    }
+
+    await product.update({
+      name: updateProductDto.name ?? product.name,
+      description:
+        updateProductDto.description !== undefined
+          ? updateProductDto.description
+          : product.description,
+      price: updateProductDto.price ?? product.price,
+      userId: updateProductDto.userId ?? product.userId,
+    });
+    return this.findOne(id);
+  }
 }
