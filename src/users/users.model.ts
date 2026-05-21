@@ -55,6 +55,11 @@ export class Users extends Model<UsersAttributes, UsersCreationAttributes> {
     type: DataType.STRING(255),
     allowNull: false,
   })
+
+  @Column({
+    type: DataType.STRING(255),
+    allowNull: false,
+  })
   declare name: string;
 
   @Column({
@@ -85,11 +90,11 @@ export class Users extends Model<UsersAttributes, UsersCreationAttributes> {
 
   @CreatedAt
   @Column(DataType.DATE)
-  declare createdAt?: Date;
+  declare createdAt: Date;
 
   @UpdatedAt
   @Column(DataType.DATE)
-  declare updatedAt?: Date;
+  declare updatedAt: Date;
 
   @HasMany(() => Products)
   declare products: Products[];
