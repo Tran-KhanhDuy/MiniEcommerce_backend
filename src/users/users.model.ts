@@ -10,9 +10,27 @@ import {
   Unique,
   UpdatedAt,
 } from 'sequelize-typescript';
+import type { Optional } from 'sequelize';
 
 import { Products } from 'src/products/products.model';
 import { UserRole } from '../common/enums/user-role.enum';
+
+export type UsersAttributes = {
+  id: number;
+  code: string;
+  name: string;
+  phone: string;
+  role: UserRole;
+  password: string;
+  canLogin: boolean;
+  createdAt?: Date;
+  updatedAt?: Date;
+};
+
+export type UsersCreationAttributes = Optional<
+  UsersAttributes,
+  'id' | 'role' | 'canLogin' | 'createdAt' | 'updatedAt'
+>;
 
 @Table({
   tableName: 'users',
@@ -20,7 +38,7 @@ import { UserRole } from '../common/enums/user-role.enum';
   paranoid: false,
   underscored: false,
 })
-export class Users extends Model<Users> {
+export class Users extends Model<UsersAttributes, UsersCreationAttributes> {
   @PrimaryKey
   @AutoIncrement
   @Column(DataType.INTEGER)
