@@ -39,24 +39,23 @@ let ProductsService = class ProductsService {
         return product;
     }
     async findAll(query) {
-        const page = query.page || 1;
-        const limit = query.limit || 10;
+        const { page = 1, limit = 10, userId, search } = query;
         const offset = (page - 1) * limit;
         const productWhere = {};
-        if (query.userId) {
-            productWhere.userId = query.userId;
+        if (userId) {
+            productWhere.userId = userId;
         }
-        const userWhere = query.search
+        const userWhere = search
             ? {
                 [sequelize_2.Op.or]: [
                     {
                         name: {
-                            [sequelize_2.Op.like]: `%${query.search}%`,
+                            [sequelize_2.Op.like]: `%${search}%`,
                         },
                     },
                     {
                         phone: {
-                            [sequelize_2.Op.like]: `%${query.search}%`,
+                            [sequelize_2.Op.like]: `%${search}%`,
                         },
                     },
                 ],
@@ -68,7 +67,7 @@ let ProductsService = class ProductsService {
                 {
                     model: users_model_1.Users,
                     attributes: ['id', 'code', 'name', 'phone', 'role'],
-                    required: Boolean(query.search),
+                    required: Boolean(search),
                     where: userWhere,
                 },
             ],
@@ -105,20 +104,25 @@ let ProductsService = class ProductsService {
             throw new common_1.NotFoundException('Product not found');
         }
         if (updateProductDto.userId) {
-            const user = await this.usersModel.findByPk(updateProductDto.userId);
+            const user = await this.usersModel.findByPk(updateProductDto.userId, {
+                attributes: ['id'],
+            });
             if (!user) {
                 throw new common_1.BadRequestException('User does not exist');
             }
         }
-        await product.update({
-            name: updateProductDto.name ?? product.name,
-            description: updateProductDto.description !== undefined
-                ? updateProductDto.description
-                : product.description,
-            price: updateProductDto.price ?? product.price,
-            userId: updateProductDto.userId ?? product.userId,
-        });
+        await product.update(updateProductDto);
         return this.findOne(id);
+    }
+    async deleteProduct(id) {
+        const product = await this.productsModel.findByPk(id);
+        if (!product) {
+            throw new common_1.NotFoundException('Product not found');
+        }
+        await product.destroy();
+        return {
+            message: 'Product deleted successfully',
+        };
     }
 };
 exports.ProductsService = ProductsService;

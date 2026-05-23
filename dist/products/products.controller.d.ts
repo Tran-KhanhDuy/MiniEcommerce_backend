@@ -13,4 +13,7 @@ export declare class ProductsController {
     }>;
     findOne(id: number): Promise<import("./products.model").Products>;
     update(id: number, updateProductDto: UpdateProductDto): Promise<import("./products.model").Products>;
+    deleteProduct(id: number): Promise<{
+        message: string;
+    }>;
 }

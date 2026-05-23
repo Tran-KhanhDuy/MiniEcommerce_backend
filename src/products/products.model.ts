@@ -14,17 +14,16 @@ import { Users } from '../users/users.model';
 export interface ProductCreationAttributes {
   name: string;
   userId: number;
-  description?: string | null; 
-  price?: number;              
+  description?: string | null;
+  price?: number;
 }
 
 @Table({
   tableName: 'products',
-  timestamps: false,
+  timestamps: true,
+  paranoid: true,
 })
-
 export class Products extends Model<Products, ProductCreationAttributes> {
-
   @PrimaryKey
   @AutoIncrement
   @Column(DataType.INTEGER)
@@ -46,6 +45,10 @@ export class Products extends Model<Products, ProductCreationAttributes> {
     type: DataType.DECIMAL(15, 2),
     allowNull: false,
     defaultValue: 0,
+    get() {
+      const value = this.getDataValue('price');
+      return value === null ? 0 : Number(value);
+    },
   })
   declare price: number;
 
@@ -59,4 +62,3 @@ export class Products extends Model<Products, ProductCreationAttributes> {
   @BelongsTo(() => Users)
   declare user: Users;
 }
-

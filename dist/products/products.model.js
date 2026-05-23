@@ -40,6 +40,10 @@ __decorate([
         type: sequelize_typescript_1.DataType.DECIMAL(15, 2),
         allowNull: false,
         defaultValue: 0,
+        get() {
+            const value = this.getDataValue('price');
+            return value === null ? 0 : Number(value);
+        },
     }),
     __metadata("design:type", Number)
 ], Products.prototype, "price", void 0);
@@ -58,7 +62,8 @@ __decorate([
 exports.Products = Products = __decorate([
     (0, sequelize_typescript_1.Table)({
         tableName: 'products',
-        timestamps: false,
+        timestamps: true,
+        paranoid: true,
     })
 ], Products);
 //# sourceMappingURL=products.model.js.map

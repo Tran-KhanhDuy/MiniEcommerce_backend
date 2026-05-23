@@ -8,6 +8,8 @@ import {
     Min,
 } from 'class-validator';
 
+import { PagingDto } from '../common/dto/paging.dto';
+
 export class CreateProductDto {
     @IsString()
     @IsNotEmpty()
@@ -27,19 +29,7 @@ export class CreateProductDto {
     @IsNotEmpty()
     userId!: number;
 }
-export class QueryProductDto {
-    @IsOptional()
-    @Type(() => Number)
-    @IsInt()
-    @Min(1)
-    page?: number = 1;
-
-    @IsOptional()
-    @Type(() => Number)
-    @IsInt()
-    @Min(1)
-    limit?: number = 10;
-
+export class QueryProductDto extends PagingDto {
     @IsOptional()
     @Type(() => Number)
     @IsInt()

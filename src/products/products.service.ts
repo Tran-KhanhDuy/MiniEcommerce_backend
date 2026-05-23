@@ -38,27 +38,26 @@ export class ProductsService {
     }
 
     async findAll(query: QueryProductDto) {
-        const page = query.page || 1;
-        const limit = query.limit || 10;
+        const { page = 1, limit = 10, userId, search } = query;
         const offset = (page - 1) * limit;
 
         const productWhere: WhereOptions<Products> = {};
 
-        if (query.userId) {
-            productWhere.userId = query.userId;
+        if (userId) {
+            productWhere.userId = userId;
         }
 
-        const userWhere = query.search
+        const userWhere = search
             ? {
                 [Op.or]: [
                     {
                         name: {
-                            [Op.like]: `%${query.search}%`,
+                            [Op.like]: `%${search}%`,
                         },
                     },
                     {
                         phone: {
-                            [Op.like]: `%${query.search}%`,
+                            [Op.like]: `%${search}%`,
                         },
                     },
                 ],
@@ -71,7 +70,7 @@ export class ProductsService {
                 {
                     model: Users,
                     attributes: ['id', 'code', 'name', 'phone', 'role'],
-                    required: Boolean(query.search),
+                    required: Boolean(search),
                     where: userWhere,
                 },
             ],
@@ -115,24 +114,30 @@ export class ProductsService {
         }
 
         if (updateProductDto.userId) {
-            const user = await this.usersModel.findByPk(updateProductDto.userId);
+            const user = await this.usersModel.findByPk(updateProductDto.userId, {
+                attributes: ['id'],
+            });
 
             if (!user) {
                 throw new BadRequestException('User does not exist');
             }
         }
 
-        await product.update({
-            name: updateProductDto.name ?? product.name,
-            description:
-                updateProductDto.description !== undefined
-                    ? updateProductDto.description
-                    : product.description,
-            price: updateProductDto.price ?? product.price,
-            userId: updateProductDto.userId ?? product.userId,
-        });
-          return this.findOne(id);
+        await product.update(updateProductDto);
 
+        return this.findOne(id);
+    }
+
+    async deleteProduct(id: number) {
+        const product = await this.productsModel.findByPk(id);
+
+        if (!product) {
+            throw new NotFoundException('Product not found');
+        }
+        await product.destroy();
+        return {
+            message: 'Product deleted successfully',
+        };
     }
 
 }
