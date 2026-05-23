@@ -2,8 +2,8 @@ import { Users } from '../users/users.model';
 import { CreateProductDto, QueryProductDto, UpdateProductDto } from './products.dto';
 import { Products } from './products.model';
 export declare class ProductsService {
-    private usersModel;
-    private productsModel;
+    private readonly usersModel;
+    private readonly productsModel;
     constructor(usersModel: typeof Users, productsModel: typeof Products);
     createProduct(createProductDto: CreateProductDto): Promise<Products>;
     findAll(query: QueryProductDto): Promise<{

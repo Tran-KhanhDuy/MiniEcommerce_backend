@@ -26,7 +26,9 @@ let ProductsService = class ProductsService {
         this.productsModel = productsModel;
     }
     async createProduct(createProductDto) {
-        const user = await this.usersModel.findByPk(createProductDto.userId);
+        const user = await this.usersModel.findByPk(createProductDto.userId, {
+            attributes: ['id'],
+        });
         if (!user) {
             throw new common_1.BadRequestException('User does not exist');
         }
@@ -39,23 +41,26 @@ let ProductsService = class ProductsService {
         return product;
     }
     async findAll(query) {
-        const { page = 1, limit = 10, userId, search } = query;
+        const page = Number(query.page) || 1;
+        const limit = Number(query.limit) || 10;
         const offset = (page - 1) * limit;
+        const { userId, search } = query;
+        const keyword = search?.trim();
         const productWhere = {};
         if (userId) {
-            productWhere.userId = userId;
+            productWhere.userId = Number(userId);
         }
-        const userWhere = search
+        const userWhere = keyword
             ? {
                 [sequelize_2.Op.or]: [
                     {
                         name: {
-                            [sequelize_2.Op.like]: `%${search}%`,
+                            [sequelize_2.Op.like]: `%${keyword}%`,
                         },
                     },
                     {
                         phone: {
-                            [sequelize_2.Op.like]: `%${search}%`,
+                            [sequelize_2.Op.like]: `%${keyword}%`,
                         },
                     },
                 ],
@@ -67,7 +72,7 @@ let ProductsService = class ProductsService {
                 {
                     model: users_model_1.Users,
                     attributes: ['id', 'code', 'name', 'phone', 'role'],
-                    required: Boolean(search),
+                    required: Boolean(keyword),
                     where: userWhere,
                 },
             ],

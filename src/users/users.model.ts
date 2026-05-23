@@ -55,7 +55,6 @@ export class Users extends Model<UsersAttributes, UsersCreationAttributes> {
     type: DataType.STRING(255),
     allowNull: false,
   })
-
   @Column({
     type: DataType.STRING(255),
     allowNull: false,
