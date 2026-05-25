@@ -35,4 +35,4 @@ lerna-debug.log*
 !.vscode/launch.json
 !.vscode/extensions.json
 
-/uploads gắn cái này vô .env đi
+/uploads
