@@ -9,7 +9,7 @@ import {
   Table,
 } from 'sequelize-typescript';
 
-import { Users } from '../users/users.model';
+import { Users } from '../users/user.model';
 
 export interface ProductCreationAttributes {
   name: string;

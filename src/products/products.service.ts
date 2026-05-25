@@ -6,7 +6,7 @@ import {
 import { InjectModel } from '@nestjs/sequelize';
 import { Op, WhereOptions } from 'sequelize';
 
-import { Users } from '../users/users.model';
+import { Users } from '../users/user.model';
 import {
   CreateProductDto,
   QueryProductDto,

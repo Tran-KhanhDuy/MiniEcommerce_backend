@@ -1,5 +1,9 @@
 {
-    "login_failed": "login failed",
-    "account_locked": "account locked ",
-    "invalid_pasword": "invalid pasword"
+    "login_failed": "Login failed",
+    "account_locked": "Account locked ",
+    "invalid_pasword": "Invalid pasword",
+    "user_already_exists": "User already exists",
+    "user_not_found": "User not found",
+    "delete_user_succesful": "Delete user succes",
+    "user_found": "User found"
 }
