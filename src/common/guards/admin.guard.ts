@@ -21,7 +21,7 @@ export class AdminGuard implements CanActivate {
     const user = request.user;
 
     if (!user) {
-      throw new ForbiddenException('user_not_found_in_request');
+      throw new ForbiddenException('user_not_found');
     }
 
     if (user.role !== 'ADMIN') {

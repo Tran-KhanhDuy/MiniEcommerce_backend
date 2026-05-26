@@ -13,6 +13,7 @@ import {
   UpdateProductDto,
 } from './products.dto';
 import { Products } from './products.model';
+import { getLanguageValue } from 'src/common/helpers/language.helper';
 
 @Injectable()
 export class ProductsService {
@@ -24,13 +25,13 @@ export class ProductsService {
     private readonly productsModel: typeof Products,
   ) {}
 
-  async createProduct(createProductDto: CreateProductDto) {
+  async createProduct(createProductDto: CreateProductDto, language = 'en') {
     const user = await this.usersModel.findByPk(createProductDto.userId, {
       attributes: ['id'],
     });
 
     if (!user) {
-      throw new BadRequestException('User does not exist');
+      throw new BadRequestException(getLanguageValue(language, 'product_not_found'));
     }
 
     const product = await this.productsModel.create({
@@ -86,7 +87,7 @@ export class ProductsService {
       ],
       limit,
       offset,
-      order: [['createdAt', 'DESC']],
+      order: [['createdAt', 'DESC'], ['id', 'DESC']],
       distinct: true,
     });
 
@@ -99,7 +100,7 @@ export class ProductsService {
     };
   }
 
-  async findOne(id: number) {
+  async findOne(id: number, language = 'en') {
     const product = await this.productsModel.findByPk(id, {
       include: [
         {
@@ -110,17 +111,17 @@ export class ProductsService {
     });
 
     if (!product) {
-      throw new NotFoundException('Product not found');
+      throw new BadRequestException(getLanguageValue(language, 'product_not_found'));
     }
 
     return product;
   }
 
-  async updateProduct(id: number, updateProductDto: UpdateProductDto) {
+  async updateProduct(id: number, updateProductDto: UpdateProductDto, language = 'en') {
     const product = await this.productsModel.findByPk(id);
 
     if (!product) {
-      throw new NotFoundException('Product not found');
+      throw new BadRequestException(getLanguageValue(language, 'product_not_found'));
     }
 
     if (updateProductDto.userId) {
@@ -129,7 +130,7 @@ export class ProductsService {
       });
 
       if (!user) {
-        throw new BadRequestException('User does not exist');
+        throw new BadRequestException(getLanguageValue(language, 'user_not_found'));
       }
     }
 
@@ -138,17 +139,17 @@ export class ProductsService {
     return this.findOne(id);
   }
 
-  async deleteProduct(id: number) {
+  async deleteProduct(id: number, language = 'en') {
     const product = await this.productsModel.findByPk(id);
 
     if (!product) {
-      throw new NotFoundException('Product not found');
+      throw new BadRequestException(getLanguageValue(language, 'product_not_found'));
     }
 
     await product.destroy();
 
     return {
-      message: 'Product deleted successfully',
+      message: getLanguageValue(language,'product_deleted_successfully'),
     };
   }
 }

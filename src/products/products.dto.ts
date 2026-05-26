@@ -8,8 +8,6 @@ import {
   Min,
 } from 'class-validator';
 
-import { PagingDto } from '../common/dto/paging.dto';
-
 export class CreateProductDto {
   @IsString()
   @IsNotEmpty()

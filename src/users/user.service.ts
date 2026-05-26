@@ -18,7 +18,8 @@ import {
 import { Users } from './user.model';
 import * as bcrypt from 'node_modules/bcryptjs';
 import { PagingDto } from 'src/common/dto/paging.dto';
-import { Op } from 'sequelize';
+import { Model, Op } from 'sequelize';
+import { Products } from 'src/products/products.model';
 @Injectable()
 export class UsersService {
   constructor(
@@ -38,7 +39,7 @@ export class UsersService {
     return this.jwtService.sign(payload);
   }
 
-  async login(loginDto: LoginDto, language = 'vi') {
+  async login(loginDto: LoginDto, language = 'en') {
     const user = await this.usersModel.findOne({
       where: {
         code: loginDto.code,
@@ -84,7 +85,7 @@ export class UsersService {
       },
     };
   }
-  async createUser(createUserDto: CreateUserDto, language = 'vi') {
+  async createUser(createUserDto: CreateUserDto, language = 'en') {
     const { code, name, phone, role, password } = createUserDto;
 
     const existedUser = await this.usersModel.findOne({
@@ -118,7 +119,7 @@ export class UsersService {
       role: newUser.role,
     };
   }
-  async deleteUser(id: number, language = 'vi') {
+  async deleteUser(id: number, language = 'en') {
     const user = await this.usersModel.findByPk(id);
 
     if (!user) {
@@ -143,7 +144,7 @@ export class UsersService {
       message: getLanguageValue(language, 'delete_user_succesful'),
     };
   }
-  async updateUser(id: number, updateUserDto: UpdateUserDto, language = 'vi') {
+  async updateUser(id: number, updateUserDto: UpdateUserDto, language = 'en') {
     const user = await this.usersModel.findByPk(id);
 
     if (!user) {
@@ -221,12 +222,26 @@ export class UsersService {
       attributes: {
         exclude: ['password'],
       },
+      include: [
+        {
+          model: Products,
+          attributes: [
+            'id',
+            'name',
+            'description',
+            'price',
+            'userId',
+            'createdAt',
+          ],
+        },
+      ],
       limit,
       offset,
       order: [
         ['createdAt', 'DESC'],
         ['id', 'DESC'],
       ],
+      distinct: true,
     });
 
     const { count, rows } = result;
@@ -240,8 +255,26 @@ export class UsersService {
       totalPages: Math.ceil(count / limit),
     };
   }
-  async findOneUser(id: number, language = 'vi') {
-    const user = await this.usersModel.findByPk(id);
+  async findOneUser(id: number, language = 'en') {
+    const user = await this.usersModel.findByPk(id, {
+      attributes: {
+        exclude: ['password'],
+      },
+      include: [
+        {
+          model: Products,
+          attributes: [
+            'id',
+            'name',
+            'description',
+            'price',
+            'userId',
+            'createdAt',
+            'updatedAt',
+          ],
+        },
+      ],
+    });
 
     if (!user) {
       const message = getLanguageValue(language, 'user_not_found');

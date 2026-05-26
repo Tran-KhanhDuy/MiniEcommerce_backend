@@ -8,6 +8,7 @@ import {
   Patch,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 
 import {
@@ -16,6 +17,9 @@ import {
   UpdateProductDto,
 } from './products.dto';
 import { ProductsService } from './products.service';
+import { ApiBearerAuth } from '@nestjs/swagger';
+import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
+import { AdminGuard } from 'src/common/guards/admin.guard';
 
 @Controller('products')
 export class ProductsController {
@@ -27,16 +31,22 @@ export class ProductsController {
   }
 
   @Get()
+  @ApiBearerAuth('JWT-auth')
+  @UseGuards(JwtAuthGuard)
   findAll(@Query() query: QueryProductDto) {
     return this.productsService.findAll(query);
   }
 
   @Get(':id')
+  @ApiBearerAuth('JWT-auth')
+  @UseGuards(JwtAuthGuard)
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.productsService.findOne(id);
   }
 
   @Patch(':id')
+  @ApiBearerAuth('JWT-auth')
+  @UseGuards(JwtAuthGuard, AdminGuard)
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateProductDto: UpdateProductDto,
@@ -45,6 +55,8 @@ export class ProductsController {
   }
 
   @Delete(':id')
+  @ApiBearerAuth('JWT-auth')
+  @UseGuards(JwtAuthGuard, AdminGuard)
   deleteProduct(@Param('id',ParseIntPipe)id: number){
     return this.productsService.deleteProduct(id);
   }

@@ -6,6 +6,8 @@ import {
   IsOptional,
   IsString,
   MaxLength,
+  Length,
+  Matches,
 } from 'class-validator';
 
 import { UserRole } from '../common/enums/user-role.enum';
@@ -17,6 +19,7 @@ export class LoginDto {
   })
   @IsString()
   @IsNotEmpty()
+  @Matches(/^\S+$/, { message: 'code_must_not_contain_spaces' })
   code!: string;
 
   @ApiProperty({
@@ -35,7 +38,8 @@ export class CreateUserDto {
   })
   @IsString()
   @IsNotEmpty()
-  @MaxLength(50)
+  @Length(1, 5, { message: 'code_must_be_from_1_to_5_character' })
+  @Matches(/^\S+$/, { message: 'code_must_not_contain_spaces' })
   code!: string;
 
   @ApiProperty({
@@ -45,6 +49,7 @@ export class CreateUserDto {
   @IsString()
   @IsNotEmpty()
   @MaxLength(255)
+  @Matches(/^\S+$/, { message: 'name_must_not_contain_spaces' })
   name!: string;
 
   @ApiProperty({
@@ -54,6 +59,7 @@ export class CreateUserDto {
   @IsString()
   @IsNotEmpty()
   @MaxLength(20)
+  @Matches(/^\S+$/, { message: 'phone_must_not_contain_spaces' })
   phone!: string;
 
   @ApiProperty({
@@ -63,6 +69,8 @@ export class CreateUserDto {
   })
   @IsEnum(UserRole)
   @IsNotEmpty()
+  @Matches(/^\S+$/, { message: 'role_not_contain_spaces' })
+
   role!: UserRole;
 
   @ApiProperty({
@@ -72,6 +80,7 @@ export class CreateUserDto {
   @IsString()
   @IsNotEmpty()
   @MaxLength(255)
+  @Matches(/^\S+$/, { message: 'Password_must_not_contain_spaces' })
   password!: string;
 }
 
