@@ -5,6 +5,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 
 type AuthRequest = {
   headers: {
@@ -17,9 +18,18 @@ type AuthRequest = {
   };
 };
 
+type JwtPayload = {
+  id: number;
+  code: string;
+  role: 'ADMIN' | 'USER';
+};
+
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
-  constructor(private readonly jwtService: JwtService) {}
+  constructor(
+    private readonly jwtService: JwtService,
+    private readonly configService: ConfigService,
+  ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<AuthRequest>();
@@ -29,20 +39,21 @@ export class JwtAuthGuard implements CanActivate {
     if (!authHeader) {
       throw new UnauthorizedException('token_not_provided');
     }
-
     const [type, token] = authHeader.split(' ');
 
     if (type !== 'Bearer' || !token) {
       throw new UnauthorizedException('invalid_token_format');
     }
 
+    const jwtSecret = this.configService.get<string>('JWT_SECRET');
+
+    if (!jwtSecret) {
+      throw new UnauthorizedException('jwt_secret_not_configured');
+    }
+
     try {
-      const payload = await this.jwtService.verifyAsync<{
-        id: number;
-        code: string;
-        role: 'ADMIN' | 'USER';
-      }>(token, {
-        secret: process.env.JWT_SECRET || 'mini-ecommerce-secret',
+      const payload = await this.jwtService.verifyAsync<JwtPayload>(token, {
+        secret: jwtSecret,
       });
 
       request.user = {

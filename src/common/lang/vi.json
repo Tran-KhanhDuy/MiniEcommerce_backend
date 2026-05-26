@@ -1,5 +1,9 @@
 {
     "login_failed" : "đăng nhập thất bại",
     "account_locked": "tài khoản đã bị khoác ",
-    "invalid_pasword": "mật khẩu không đúng"
+    "invalid_pasword": "mật khẩu không đúng",
+    "user_already_exists" : "Người dùng đã tồn tại",
+    "user_not_found": "Không tìm thấy người dùng",
+    "delete_user_succes" : "Xóa người dùng thành công",
+    "user_found": "đã tìm thấy người dùng"
 }

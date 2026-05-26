@@ -16,7 +16,7 @@ exports.ProductsService = void 0;
 const common_1 = require("@nestjs/common");
 const sequelize_1 = require("@nestjs/sequelize");
 const sequelize_2 = require("sequelize");
-const users_model_1 = require("../users/users.model");
+const user_model_1 = require("../users/user.model");
 const products_model_1 = require("./products.model");
 let ProductsService = class ProductsService {
     usersModel;
@@ -70,7 +70,7 @@ let ProductsService = class ProductsService {
             where: productWhere,
             include: [
                 {
-                    model: users_model_1.Users,
+                    model: user_model_1.Users,
                     attributes: ['id', 'code', 'name', 'phone', 'role'],
                     required: Boolean(keyword),
                     where: userWhere,
@@ -93,7 +93,7 @@ let ProductsService = class ProductsService {
         const product = await this.productsModel.findByPk(id, {
             include: [
                 {
-                    model: users_model_1.Users,
+                    model: user_model_1.Users,
                     attributes: ['id', 'code', 'name', 'phone', 'role'],
                 },
             ],
@@ -133,7 +133,7 @@ let ProductsService = class ProductsService {
 exports.ProductsService = ProductsService;
 exports.ProductsService = ProductsService = __decorate([
     (0, common_1.Injectable)(),
-    __param(0, (0, sequelize_1.InjectModel)(users_model_1.Users)),
+    __param(0, (0, sequelize_1.InjectModel)(user_model_1.Users)),
     __param(1, (0, sequelize_1.InjectModel)(products_model_1.Products)),
     __metadata("design:paramtypes", [Object, Object])
 ], ProductsService);

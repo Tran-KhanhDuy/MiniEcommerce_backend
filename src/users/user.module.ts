@@ -1,24 +1,30 @@
 import { Module } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { JwtModule } from '@nestjs/jwt';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
-import { Users } from './users.model';
-import { UsersService } from './users.service';
+import { Users } from './user.model';
+import { UsersService } from './user.service';
 import { UsersController } from './user.controller';
+import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 
 @Module({
   imports: [
     SequelizeModule.forFeature([Users]),
 
-    JwtModule.register({
-      secret: process.env.JWT_SECRET || 'mini-ecommerce-secret',
-      signOptions: {
-        expiresIn: '1d',
-      },
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        secret: configService.get<string>('JWT_SECRET'),
+        signOptions: {
+          expiresIn: '1d',
+        },
+      }),
     }),
   ],
   controllers: [UsersController],
-  providers: [UsersService],
+  providers: [UsersService, JwtAuthGuard],
   exports: [UsersService],
 })
 export class UsersModule {}

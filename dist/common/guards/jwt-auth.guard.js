@@ -12,10 +12,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.JwtAuthGuard = void 0;
 const common_1 = require("@nestjs/common");
 const jwt_1 = require("@nestjs/jwt");
+const config_1 = require("@nestjs/config");
 let JwtAuthGuard = class JwtAuthGuard {
     jwtService;
-    constructor(jwtService) {
+    configService;
+    constructor(jwtService, configService) {
         this.jwtService = jwtService;
+        this.configService = configService;
     }
     async canActivate(context) {
         const request = context.switchToHttp().getRequest();
@@ -27,9 +30,13 @@ let JwtAuthGuard = class JwtAuthGuard {
         if (type !== 'Bearer' || !token) {
             throw new common_1.UnauthorizedException('invalid_token_format');
         }
+        const jwtSecret = this.configService.get('JWT_SECRET');
+        if (!jwtSecret) {
+            throw new common_1.UnauthorizedException('jwt_secret_not_configured');
+        }
         try {
             const payload = await this.jwtService.verifyAsync(token, {
-                secret: process.env.JWT_SECRET || 'mini-ecommerce-secret',
+                secret: jwtSecret,
             });
             request.user = {
                 id: payload.id,
@@ -46,6 +53,7 @@ let JwtAuthGuard = class JwtAuthGuard {
 exports.JwtAuthGuard = JwtAuthGuard;
 exports.JwtAuthGuard = JwtAuthGuard = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [jwt_1.JwtService])
+    __metadata("design:paramtypes", [jwt_1.JwtService,
+        config_1.ConfigService])
 ], JwtAuthGuard);
 //# sourceMappingURL=jwt-auth.guard.js.map

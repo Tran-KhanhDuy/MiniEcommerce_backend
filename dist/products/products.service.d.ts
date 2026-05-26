@@ -1,4 +1,4 @@
-import { Users } from '../users/users.model';
+import { Users } from '../users/user.model';
 import { CreateProductDto, QueryProductDto, UpdateProductDto } from './products.dto';
 import { Products } from './products.model';
 export declare class ProductsService {
