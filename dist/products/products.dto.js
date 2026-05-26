@@ -12,7 +12,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.UpdateProductDto = exports.QueryProductDto = exports.CreateProductDto = void 0;
 const class_transformer_1 = require("class-transformer");
 const class_validator_1 = require("class-validator");
-const paging_dto_1 = require("../common/dto/paging.dto");
 class CreateProductDto {
     name;
     description;
@@ -42,11 +41,27 @@ __decorate([
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", Number)
 ], CreateProductDto.prototype, "userId", void 0);
-class QueryProductDto extends paging_dto_1.PagingDto {
+class QueryProductDto {
+    page = 1;
+    limit = 10;
     userId;
     search;
 }
 exports.QueryProductDto = QueryProductDto;
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_transformer_1.Type)(() => Number),
+    (0, class_validator_1.IsInt)(),
+    (0, class_validator_1.Min)(1),
+    __metadata("design:type", Number)
+], QueryProductDto.prototype, "page", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_transformer_1.Type)(() => Number),
+    (0, class_validator_1.IsInt)(),
+    (0, class_validator_1.Min)(1),
+    __metadata("design:type", Number)
+], QueryProductDto.prototype, "limit", void 0);
 __decorate([
     (0, class_validator_1.IsOptional)(),
     (0, class_transformer_1.Type)(() => Number),

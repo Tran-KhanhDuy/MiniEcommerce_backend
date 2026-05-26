@@ -1,11 +1,12 @@
-import { PagingDto } from '../common/dto/paging.dto';
 export declare class CreateProductDto {
     name: string;
     description?: string;
     price: number;
     userId: number;
 }
-export declare class QueryProductDto extends PagingDto {
+export declare class QueryProductDto {
+    page?: number;
+    limit?: number;
     userId?: number;
     search?: string;
 }
