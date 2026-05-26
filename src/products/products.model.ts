@@ -20,7 +20,8 @@ export interface ProductCreationAttributes {
 
 @Table({
   tableName: 'products',
-  timestamps: false,
+  timestamps: true,
+  paranoid: true,
 })
 export class Products extends Model<Products, ProductCreationAttributes> {
   @PrimaryKey
@@ -44,6 +45,10 @@ export class Products extends Model<Products, ProductCreationAttributes> {
     type: DataType.DECIMAL(15, 2),
     allowNull: false,
     defaultValue: 0,
+    get() {
+      const value = this.getDataValue('price');
+      return value === null ? 0 : Number(value);
+    },
   })
   declare price: number;
 
