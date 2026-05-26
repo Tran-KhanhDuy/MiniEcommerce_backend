@@ -45,8 +45,8 @@ export class Products extends Model<Products, ProductCreationAttributes> {
     type: DataType.DECIMAL(15, 2),
     allowNull: false,
     defaultValue: 0,
-    get() {
-      const value = this.getDataValue('price');
+    get(this: any) {
+      const value = this.getDataValue('price') as number;
       return value === null ? 0 : Number(value);
     },
   })
