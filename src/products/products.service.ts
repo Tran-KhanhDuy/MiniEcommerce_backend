@@ -18,14 +18,16 @@ import { Products } from './products.model';
 export class ProductsService {
   constructor(
     @InjectModel(Users)
-    private usersModel: typeof Users,
+    private readonly usersModel: typeof Users,
 
     @InjectModel(Products)
-    private productsModel: typeof Products,
+    private readonly productsModel: typeof Products,
   ) {}
 
   async createProduct(createProductDto: CreateProductDto) {
-    const user = await this.usersModel.findByPk(createProductDto.userId);
+    const user = await this.usersModel.findByPk(createProductDto.userId, {
+      attributes: ['id'],
+    });
 
     if (!user) {
       throw new BadRequestException('User does not exist');
@@ -42,27 +44,30 @@ export class ProductsService {
   }
 
   async findAll(query: QueryProductDto) {
-    const page = query.page || 1;
-    const limit = query.limit || 10;
+    const page = Number(query.page) || 1;
+    const limit = Number(query.limit) || 10;
     const offset = (page - 1) * limit;
+
+    const { userId, search } = query;
+    const keyword = search?.trim();
 
     const productWhere: WhereOptions<Products> = {};
 
-    if (query.userId) {
-      productWhere.userId = query.userId;
+    if (userId) {
+      productWhere.userId = Number(userId);
     }
 
-    const userWhere = query.search
+    const userWhere = keyword
       ? {
           [Op.or]: [
             {
               name: {
-                [Op.like]: `%${query.search}%`,
+                [Op.like]: `%${keyword}%`,
               },
             },
             {
               phone: {
-                [Op.like]: `%${query.search}%`,
+                [Op.like]: `%${keyword}%`,
               },
             },
           ],
@@ -75,7 +80,7 @@ export class ProductsService {
         {
           model: Users,
           attributes: ['id', 'code', 'name', 'phone', 'role'],
-          required: Boolean(query.search),
+          required: Boolean(keyword),
           where: userWhere,
         },
       ],
@@ -119,22 +124,31 @@ export class ProductsService {
     }
 
     if (updateProductDto.userId) {
-      const user = await this.usersModel.findByPk(updateProductDto.userId);
+      const user = await this.usersModel.findByPk(updateProductDto.userId, {
+        attributes: ['id'],
+      });
 
       if (!user) {
         throw new BadRequestException('User does not exist');
       }
     }
 
-    await product.update({
-      name: updateProductDto.name ?? product.name,
-      description:
-        updateProductDto.description !== undefined
-          ? updateProductDto.description
-          : product.description,
-      price: updateProductDto.price ?? product.price,
-      userId: updateProductDto.userId ?? product.userId,
-    });
+    await product.update(updateProductDto);
+
     return this.findOne(id);
+  }
+
+  async deleteProduct(id: number) {
+    const product = await this.productsModel.findByPk(id);
+
+    if (!product) {
+      throw new NotFoundException('Product not found');
+    }
+
+    await product.destroy();
+
+    return {
+      message: 'Product deleted successfully',
+    };
   }
 }
