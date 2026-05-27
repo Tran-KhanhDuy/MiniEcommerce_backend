@@ -90,8 +90,9 @@ export class UsersService {
 
     const existedUser = await this.usersModel.findOne({
       where: {
-        code,
+        code: createUserDto.code,
       },
+      paranoid: false
     });
 
     if (existedUser) {

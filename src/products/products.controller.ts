@@ -26,20 +26,22 @@ export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
   @Post()
+  @ApiBearerAuth('JWT-auth')
+  @UseGuards(JwtAuthGuard,AdminGuard)
   create(@Body() createProductDto: CreateProductDto) {
     return this.productsService.createProduct(createProductDto);
   }
 
   @Get()
   @ApiBearerAuth('JWT-auth')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard,AdminGuard)
   findAll(@Query() query: QueryProductDto) {
     return this.productsService.findAll(query);
   }
 
   @Get(':id')
   @ApiBearerAuth('JWT-auth')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard,AdminGuard)
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.productsService.findOne(id);
   }
