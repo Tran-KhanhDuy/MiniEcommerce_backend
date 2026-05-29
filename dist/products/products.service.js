@@ -50,8 +50,8 @@ let ProductsService = class ProductsService {
         if (userId) {
             productWhere.userId = Number(userId);
         }
-        const userWhere = keyword
-            ? {
+        if (keyword) {
+            Object.assign(productWhere, {
                 [sequelize_2.Op.or]: [
                     {
                         name: {
@@ -59,21 +59,25 @@ let ProductsService = class ProductsService {
                         },
                     },
                     {
-                        phone: {
+                        '$user.name$': {
+                            [sequelize_2.Op.like]: `%${keyword}%`,
+                        },
+                    },
+                    {
+                        '$user.phone$': {
                             [sequelize_2.Op.like]: `%${keyword}%`,
                         },
                     },
                 ],
-            }
-            : undefined;
+            });
+        }
         const { rows, count } = await this.productsModel.findAndCountAll({
             where: productWhere,
             include: [
                 {
                     model: user_model_1.Users,
-                    attributes: ['id', 'code', 'name', 'phone', 'role'],
-                    required: Boolean(keyword),
-                    where: userWhere,
+                    attributes: ['code', 'name', 'phone', 'role'],
+                    required: false,
                 },
             ],
             limit,
@@ -94,7 +98,7 @@ let ProductsService = class ProductsService {
             include: [
                 {
                     model: user_model_1.Users,
-                    attributes: ['id', 'code', 'name', 'phone', 'role'],
+                    attributes: ['code', 'name', 'phone', 'role'],
                 },
             ],
         });

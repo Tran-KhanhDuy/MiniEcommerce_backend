@@ -13,7 +13,6 @@ import {
   UpdateProductDto,
 } from './products.dto';
 import { Products } from './products.model';
-import { getLanguageValue } from 'src/common/helpers/language.helper';
 
 @Injectable()
 export class ProductsService {
@@ -25,13 +24,13 @@ export class ProductsService {
     private readonly productsModel: typeof Products,
   ) {}
 
-  async createProduct(createProductDto: CreateProductDto, language = 'en') {
+  async createProduct(createProductDto: CreateProductDto) {
     const user = await this.usersModel.findByPk(createProductDto.userId, {
       attributes: ['id'],
     });
 
     if (!user) {
-      throw new BadRequestException(getLanguageValue(language, 'product_not_found'));
+      throw new BadRequestException('User does not exist');
     }
 
     const product = await this.productsModel.create({
@@ -45,83 +44,87 @@ export class ProductsService {
   }
 
   async findAll(query: QueryProductDto) {
-    const page = Number(query.page) || 1;
-    const limit = Number(query.limit) || 10;
-    const offset = (page - 1) * limit;
+  const page = Number(query.page) || 1;
+  const limit = Number(query.limit) || 10;
+  const offset = (page - 1) * limit;
 
-    const { userId, search } = query;
-    const keyword = search?.trim();
+  const { userId, search } = query;
+  const keyword = search?.trim();
 
-    const productWhere: WhereOptions<Products> = {};
+  const productWhere: WhereOptions<Products> = {};
 
-    if (userId) {
-      productWhere.userId = Number(userId);
-    }
-
-    const userWhere = keyword
-      ? {
-          [Op.or]: [
-            {
-              name: {
-                [Op.like]: `%${keyword}%`,
-              },
-            },
-            {
-              phone: {
-                [Op.like]: `%${keyword}%`,
-              },
-            },
-          ],
-        }
-      : undefined;
-
-    const { rows, count } = await this.productsModel.findAndCountAll({
-      where: productWhere,
-      include: [
-        {
-          model: Users,
-          attributes: ['id', 'code', 'name', 'phone', 'role'],
-          required: Boolean(keyword),
-          where: userWhere,
-        },
-      ],
-      limit,
-      offset,
-      order: [['createdAt', 'DESC'], ['id', 'DESC']],
-      distinct: true,
-    });
-
-    return {
-      items: rows,
-      total: count,
-      page,
-      limit,
-      totalPages: Math.ceil(count / limit),
-    };
+  if (userId) {
+    productWhere.userId = Number(userId);
   }
 
-  async findOne(id: number, language = 'en') {
+  if (keyword) {
+    Object.assign(productWhere, {
+      [Op.or]: [
+        {
+          name: {
+            [Op.like]: `%${keyword}%`,
+          },
+        },
+        {
+          '$user.name$': {
+            [Op.like]: `%${keyword}%`,
+          },
+        },
+        {
+          '$user.phone$': {
+            [Op.like]: `%${keyword}%`,
+          },
+        },
+      ],
+    });
+  }
+
+  const { rows, count } = await this.productsModel.findAndCountAll({
+    where: productWhere,
+    include: [
+      {
+        model: Users,
+        attributes: [ 'code', 'name', 'phone', 'role'],
+        required: false,
+      },
+    ],
+    limit,
+    offset,
+    order: [['createdAt', 'DESC']],
+    distinct: true,
+  });
+
+  return {
+    items: rows,
+    total: count,
+    page,
+    limit,
+    totalPages: Math.ceil(count / limit),
+  };
+}
+
+  async findOne(id: number) {
     const product = await this.productsModel.findByPk(id, {
       include: [
         {
           model: Users,
-          attributes: ['id', 'code', 'name', 'phone', 'role'],
+          attributes: ['code', 'name', 'phone', 'role'],
         },
       ],
     });
 
     if (!product) {
-      throw new BadRequestException(getLanguageValue(language, 'product_not_found'));
+      throw new NotFoundException('Product not found');
     }
 
     return product;
   }
 
-  async updateProduct(id: number, updateProductDto: UpdateProductDto, language = 'en') {
+  async updateProduct(id: number, updateProductDto: UpdateProductDto) {
     const product = await this.productsModel.findByPk(id);
 
     if (!product) {
-      throw new BadRequestException(getLanguageValue(language, 'product_not_found'));
+      throw new NotFoundException('Product not found');
     }
 
     if (updateProductDto.userId) {
@@ -130,7 +133,7 @@ export class ProductsService {
       });
 
       if (!user) {
-        throw new BadRequestException(getLanguageValue(language, 'user_not_found'));
+        throw new BadRequestException('User does not exist');
       }
     }
 
@@ -139,17 +142,17 @@ export class ProductsService {
     return this.findOne(id);
   }
 
-  async deleteProduct(id: number, language = 'en') {
+  async deleteProduct(id: number) {
     const product = await this.productsModel.findByPk(id);
 
     if (!product) {
-      throw new BadRequestException(getLanguageValue(language, 'product_not_found'));
+      throw new NotFoundException('Product not found');
     }
 
     await product.destroy();
 
     return {
-      message: getLanguageValue(language,'product_deleted_successfully'),
+      message: 'Product deleted successfully',
     };
   }
 }
