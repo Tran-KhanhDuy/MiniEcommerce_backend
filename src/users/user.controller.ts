@@ -33,7 +33,7 @@ export class UsersController {
   @ApiOperation({
     summary: 'Login user',
   })
-  login(@Body() loginDto: LoginDto, @Headers('language') language = 'vi') {
+  login(@Body() loginDto: LoginDto, @Headers('language') language = 'en') {
     return this.usersService.login(loginDto, language);
   }
 
@@ -45,7 +45,7 @@ export class UsersController {
   @UseGuards(JwtAuthGuard, AdminGuard)
   createUser(
     @Body() createUserDto: CreateUserDto,
-    @Headers('language') language = 'vi',
+    @Headers('language') language = 'en',
   ) {
     return this.usersService.createUser(createUserDto, language);
   }
@@ -68,7 +68,7 @@ export class UsersController {
   @UseGuards(JwtAuthGuard, AdminGuard)
   findOneUser(
     @Param('id', ParseIntPipe) id: number,
-    @Headers('language') language = 'vi',
+    @Headers('language') language = 'en',
   ) {
     return this.usersService.findOneUser(id, language);
   }
@@ -82,7 +82,7 @@ export class UsersController {
   updateUser(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateUserDto: UpdateUserDto,
-    @Headers('language') language = 'vi',
+    @Headers('language') language = 'en',
   ) {
     return this.usersService.updateUser(id, updateUserDto, language);
   }
@@ -95,7 +95,7 @@ export class UsersController {
   @UseGuards(JwtAuthGuard, AdminGuard)
   deleteUser(
     @Param('id', ParseIntPipe) id: number,
-    @Headers('language') language = 'vi',
+    @Headers('language') language = 'en',
   ) {
     return this.usersService.deleteUser(id, language);
   }

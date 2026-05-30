@@ -26,23 +26,29 @@ export class ProductsService {
   ) {}
 
   async createProduct(createProductDto: CreateProductDto, language = 'en') {
-    const user = await this.usersModel.findByPk(createProductDto.userId, {
-      attributes: ['id'],
-    });
+  const user = await this.usersModel.findOne({
+    where: {
+      id: createProductDto.userId,
+      canLogin: true,
+    },
+    attributes: ['id'],
+  });
 
-    if (!user) {
-      throw new BadRequestException(getLanguageValue(language, 'product_not_found'));
-    }
-
-    const product = await this.productsModel.create({
-      name: createProductDto.name,
-      description: createProductDto.description ?? null,
-      price: createProductDto.price ?? 0,
-      userId: createProductDto.userId,
-    });
-
-    return product;
+  if (!user) {
+    throw new BadRequestException(
+      getLanguageValue(language, 'user_not_found'),
+    );
   }
+
+  const product = await this.productsModel.create({
+    name: createProductDto.name,
+    description: createProductDto.description ?? null,
+    price: createProductDto.price ?? 0,
+    userId: createProductDto.userId,
+  });
+
+  return product;
+}
 
   async findAll(query: QueryProductDto) {
     const page = Number(query.page) || 1;

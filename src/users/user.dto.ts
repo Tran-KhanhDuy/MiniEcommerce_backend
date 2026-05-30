@@ -49,7 +49,6 @@ export class CreateUserDto {
   @IsString()
   @IsNotEmpty()
   @MaxLength(255)
-  @Matches(/^\S+$/, { message: 'name_must_not_contain_spaces' })
   name!: string;
 
   @ApiProperty({
