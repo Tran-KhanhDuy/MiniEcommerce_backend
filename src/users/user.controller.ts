@@ -33,7 +33,7 @@ export class UsersController {
   @ApiOperation({
     summary: 'Login user',
   })
-  login(@Body() loginDto: LoginDto, @Headers('language') language = 'vi') {
+  login(@Body() loginDto: LoginDto, @Headers('language') language = 'en') {
     return this.usersService.login(loginDto, language);
   }
 
