@@ -6,20 +6,19 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/sequelize';
-import { compare } from 'bcryptjs';
+import * as bcrypt from 'bcryptjs';
+import { Op } from 'sequelize';
 
+import { PagingDto } from 'src/common/dto/paging.dto';
 import { getLanguageValue } from 'src/common/helpers/language.helper';
 import {
   CreateUserDto,
   GetUsersFilterDto,
   LoginDto,
   UpdateUserDto,
-} from './user.dto';
-import { Users } from './user.model';
-import * as bcrypt from 'node_modules/bcryptjs';
-import { PagingDto } from 'src/common/dto/paging.dto';
-import { Model, Op } from 'sequelize';
-import { Products } from 'src/products/products.model';
+} from './users.dto';
+import { Users } from './users.model';
+
 @Injectable()
 export class UsersService {
   constructor(
@@ -64,7 +63,10 @@ export class UsersService {
       );
     }
 
-    const isPasswordValid = await compare(loginDto.password, user.password);
+    const isPasswordValid = await bcrypt.compare(
+      loginDto.password,
+      user.password,
+    );
 
     if (!isPasswordValid) {
       throw new UnauthorizedException(
@@ -85,6 +87,7 @@ export class UsersService {
       },
     };
   }
+
   async createUser(createUserDto: CreateUserDto, language = 'en') {
     const { code, name, phone, role, password } = createUserDto;
 
@@ -92,11 +95,13 @@ export class UsersService {
       where: {
         code,
       },
+      paranoid: false,
     });
 
     if (existedUser) {
-      const message = getLanguageValue(language, 'user_already_exists');
-      throw new BadRequestException(message);
+      throw new BadRequestException(
+        getLanguageValue(language, 'user_already_exists'),
+      );
     }
 
     const salt = await bcrypt.genSalt(
@@ -111,6 +116,7 @@ export class UsersService {
       role,
       password: hashedPassword,
     });
+
     return {
       id: newUser.id,
       code: newUser.code,
@@ -119,37 +125,31 @@ export class UsersService {
       role: newUser.role,
     };
   }
+
   async deleteUser(id: number, language = 'en') {
     const user = await this.usersModel.findByPk(id);
 
     if (!user) {
-      const message = getLanguageValue(language, 'user_not_found');
-      throw new NotFoundException(message);
+      throw new NotFoundException(getLanguageValue(language, 'user_not_found'));
     }
 
-    await this.usersModel.update(
-      {
-        canLogin: false,
-        updatedAt: new Date(),
-      },
-      {
-        where: {
-          id,
-        },
-      },
-    );
+    await user.update({
+      canLogin: false,
+      updatedAt: new Date(),
+    });
+
     await user.destroy();
 
     return {
       message: getLanguageValue(language, 'delete_user_succesful'),
     };
   }
+
   async updateUser(id: number, updateUserDto: UpdateUserDto, language = 'en') {
     const user = await this.usersModel.findByPk(id);
 
     if (!user) {
-      const message = getLanguageValue(language, 'user_not_found');
-      throw new NotFoundException(message);
+      throw new NotFoundException(getLanguageValue(language, 'user_not_found'));
     }
 
     if (updateUserDto.code && updateUserDto.code !== user.code) {
@@ -157,11 +157,13 @@ export class UsersService {
         where: {
           code: updateUserDto.code,
         },
+        paranoid: false,
       });
 
       if (existedUser) {
-        const message = getLanguageValue(language, 'user_already_exists');
-        throw new BadRequestException(message);
+        throw new BadRequestException(
+          getLanguageValue(language, 'user_already_exists'),
+        );
       }
     }
 
@@ -188,6 +190,7 @@ export class UsersService {
       canLogin: user.canLogin,
     };
   }
+
   async findAllUser(query: GetUsersFilterDto, paging: PagingDto) {
     const where: Record<PropertyKey, unknown> = {};
 
@@ -213,28 +216,19 @@ export class UsersService {
       ];
     }
 
+    if (query.role) {
+      where.role = query.role;
+    }
+
     const limit = Number(paging.limit) || 10;
     const page = Number(paging.page) || 1;
     const offset = (page - 1) * limit;
 
-    const result = await this.usersModel.findAndCountAll({
+    const { count, rows } = await this.usersModel.findAndCountAll({
       where,
       attributes: {
         exclude: ['password'],
       },
-      include: [
-        {
-          model: Products,
-          attributes: [
-            'id',
-            'name',
-            'description',
-            'price',
-            'userId',
-            'createdAt',
-          ],
-        },
-      ],
       limit,
       offset,
       order: [
@@ -243,8 +237,6 @@ export class UsersService {
       ],
       distinct: true,
     });
-
-    const { count, rows } = result;
 
     return {
       items: rows.map((row) => row.get({ plain: true })),
@@ -255,30 +247,16 @@ export class UsersService {
       totalPages: Math.ceil(count / limit),
     };
   }
+
   async findOneUser(id: number, language = 'en') {
     const user = await this.usersModel.findByPk(id, {
       attributes: {
         exclude: ['password'],
       },
-      include: [
-        {
-          model: Products,
-          attributes: [
-            'id',
-            'name',
-            'description',
-            'price',
-            'userId',
-            'createdAt',
-            'updatedAt',
-          ],
-        },
-      ],
     });
 
     if (!user) {
-      const message = getLanguageValue(language, 'user_not_found');
-      throw new NotFoundException(message);
+      throw new NotFoundException(getLanguageValue(language, 'user_not_found'));
     }
 
     return {

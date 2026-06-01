@@ -18,8 +18,8 @@ import {
   GetUsersFilterDto,
   LoginDto,
   UpdateUserDto,
-} from './user.dto';
-import { UsersService } from './user.service';
+} from './users.dto';
+import { UsersService } from './users.service';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 import { AdminGuard } from 'src/common/guards/admin.guard';
 import { PagingDto } from 'src/common/dto/paging.dto';
