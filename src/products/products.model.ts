@@ -1,19 +1,13 @@
 import {
   AutoIncrement,
-  BelongsTo,
   Column,
   DataType,
-  ForeignKey,
   Model,
   PrimaryKey,
   Table,
 } from 'sequelize-typescript';
-
-import { Users } from '../users/user.model';
-
 export interface ProductCreationAttributes {
   name: string;
-  userId: number;
   description?: string | null;
   price?: number;
 }
@@ -51,14 +45,4 @@ export class Products extends Model<Products, ProductCreationAttributes> {
     },
   })
   declare price: number;
-
-  @ForeignKey(() => Users)
-  @Column({
-    type: DataType.INTEGER,
-    allowNull: false,
-  })
-  declare userId: number;
-
-  @BelongsTo(() => Users)
-  declare user: Users;
 }

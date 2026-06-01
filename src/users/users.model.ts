@@ -4,7 +4,6 @@ import {
   CreatedAt,
   DataType,
   DeletedAt,
-  HasMany,
   Model,
   PrimaryKey,
   Table,
@@ -13,7 +12,6 @@ import {
 } from 'sequelize-typescript';
 import type { Optional } from 'sequelize';
 
-import { Products } from 'src/products/products.model';
 import { UserRole } from '../common/enums/user-role.enum';
 
 export type UsersAttributes = {
@@ -66,9 +64,9 @@ export class Users extends Model<UsersAttributes, UsersCreationAttributes> {
   declare phone: string;
 
   @Column({
-    type: DataType.ENUM(UserRole.ADMIN, UserRole.USER),
+    type: DataType.ENUM(UserRole.ADMIN, UserRole.CUSTOMER),
     allowNull: false,
-    defaultValue: UserRole.USER,
+    defaultValue: UserRole.CUSTOMER,
   })
   declare role: UserRole;
 
@@ -96,7 +94,4 @@ export class Users extends Model<UsersAttributes, UsersCreationAttributes> {
   @DeletedAt
   @Column(DataType.DATE)
   declare deletedAt?: Date;
-
-  @HasMany(() => Products)
-  declare products: Products[];
 }

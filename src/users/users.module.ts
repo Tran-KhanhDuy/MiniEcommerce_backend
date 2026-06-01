@@ -2,15 +2,15 @@ import { Module } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { Products } from 'src/products/products.model';
-import { Users } from './user.model';
-import { UsersService } from './user.service';
-import { UsersController } from './user.controller';
+
+import { Users } from './users.model';
+import { UsersService } from './users.service';
+import { UsersController } from './users.controller';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 
 @Module({
   imports: [
-    SequelizeModule.forFeature([Users, Products]),
+    SequelizeModule.forFeature([Users]),
 
     JwtModule.registerAsync({
       imports: [ConfigModule],
