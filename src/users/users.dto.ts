@@ -1,6 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsBoolean,
+  IsEmail,
   IsEnum,
   IsNotEmpty,
   IsOptional,
@@ -14,13 +15,12 @@ import { UserRole } from '../common/enums/user-role.enum';
 
 export class LoginDto {
   @ApiProperty({
-    description: 'User code',
-    example: 'U001',
+    description: 'Email',
+    example: 'example@email.com',
   })
-  @IsString()
-  @IsNotEmpty()
-  @Matches(/^\S+$/, { message: 'code_must_not_contain_spaces' })
-  code!: string;
+  @IsEmail({}, { message: 'email_invalid' })
+  @IsNotEmpty({ message: 'email_required' })
+  email!: string;
 
   @ApiProperty({
     description: 'Password',
@@ -39,7 +39,6 @@ export class CreateUserDto {
   @IsString()
   @IsNotEmpty()
   @Length(1, 5, { message: 'code_must_be_from_1_to_5_character' })
-  @Matches(/^\S+$/, { message: 'code_must_not_contain_spaces' })
   code!: string;
 
   @ApiProperty({
@@ -57,9 +56,17 @@ export class CreateUserDto {
   })
   @IsString()
   @IsNotEmpty()
-  @MaxLength(20)
-  @Matches(/^\S+$/, { message: 'phone_must_not_contain_spaces' })
+  @Length(1, 11, { message: 'phone_must_be_from_1_to_11_number' })
+  @Matches(/^\d+$/, { message: 'phone_must_be_number' })
   phone!: string;
+
+  @ApiProperty({
+    description: 'Email',
+    example: 'example@email.com',
+  })
+  @IsEmail({}, { message: 'email_invalid' })
+  @IsNotEmpty({ message: 'email_required' })
+  email!: string;
 
   @ApiProperty({
     description: 'User role',
@@ -82,15 +89,6 @@ export class CreateUserDto {
 }
 
 export class UpdateUserDto {
-  @ApiPropertyOptional({
-    description: 'Unique user code',
-    example: 'U001',
-  })
-  @IsString()
-  @IsOptional()
-  @MaxLength(50)
-  code?: string;
-
   @ApiPropertyOptional({
     description: 'User name',
     example: 'Nguyen Van A',

@@ -18,7 +18,7 @@ import {
   UpdateUserDto,
 } from './users.dto';
 import { Users } from './users.model';
-
+import { Products } from 'src/products/products.model';
 @Injectable()
 export class UsersService {
   constructor(
@@ -39,9 +39,10 @@ export class UsersService {
   }
 
   async login(loginDto: LoginDto, language = 'en') {
+    const { email, password } = loginDto;
     const user = await this.usersModel.findOne({
       where: {
-        code: loginDto.code,
+        email,
       },
     });
 
@@ -81,6 +82,7 @@ export class UsersService {
       user: {
         id: user.id,
         code: user.code,
+        email: user.email,
         name: user.name,
         phone: user.phone,
         role: user.role,
@@ -89,13 +91,19 @@ export class UsersService {
   }
 
   async createUser(createUserDto: CreateUserDto, language = 'en') {
-    const { code, name, phone, role, password } = createUserDto;
+    const { code, name, phone, email, role, password } = createUserDto;
 
     const existedUser = await this.usersModel.findOne({
       where: {
         code: createUserDto.code,
       },
       paranoid: false
+    });
+    const existedEmail = await this.usersModel.findOne({
+      where: {
+        email,
+      },
+      paranoid: false,
     });
 
     if (existedUser) {
@@ -113,6 +121,7 @@ export class UsersService {
       code,
       name,
       phone,
+      email,
       role,
       password: hashedPassword,
     });
@@ -147,28 +156,16 @@ export class UsersService {
 
   async updateUser(id: number, updateUserDto: UpdateUserDto, language = 'en') {
     const user = await this.usersModel.findByPk(id);
-
+    const { name, phone, role, canLogin } = updateUserDto;
     if (!user) {
       throw new NotFoundException(getLanguageValue(language, 'user_not_found'));
     }
 
-    if (updateUserDto.code && updateUserDto.code !== user.code) {
-      const existedUser = await this.usersModel.findOne({
-        where: {
-          code: updateUserDto.code,
-        },
-        paranoid: false,
-      });
-
-      if (existedUser) {
-        throw new BadRequestException(
-          getLanguageValue(language, 'user_already_exists'),
-        );
-      }
-    }
-
     const dataUpdate: Partial<UpdateUserDto> = {
-      ...updateUserDto,
+      name,
+      phone,
+      role,
+      canLogin,
     };
 
     if (updateUserDto.password) {
@@ -227,8 +224,24 @@ export class UsersService {
     const { count, rows } = await this.usersModel.findAndCountAll({
       where,
       attributes: {
-        exclude: ['password'],
+        exclude: ['password', 'email'],
       },
+      include: [
+        {
+          model: Products,
+          as: 'ownedProducts',
+          attributes: [
+            'id',
+            'name',
+            'description',
+            'price',
+            'ownerId',
+            'createdAt',
+            'updatedAt',
+          ],
+          required: false,
+        },
+      ],
       limit,
       offset,
       order: [
@@ -251,26 +264,34 @@ export class UsersService {
   async findOneUser(id: number, language = 'en') {
     const user = await this.usersModel.findByPk(id, {
       attributes: {
-        exclude: ['password'],
+        exclude: ['password', 'email'],
       },
+      include: [
+        {
+          model: Products,
+          as: 'ownedProducts',
+          attributes: [
+            'id',
+            'name',
+            'description',
+            'price',
+            'ownerId',
+            'createdAt',
+            'updatedAt',
+          ],
+          required: false,
+        },
+      ],
     });
 
     if (!user) {
       throw new NotFoundException(getLanguageValue(language, 'user_not_found'));
     }
 
+    const plainUser = user.get({ plain: true }) as any;
     return {
       message: getLanguageValue(language, 'user_found'),
-      data: {
-        id: user.id,
-        code: user.code,
-        name: user.name,
-        phone: user.phone,
-        role: user.role,
-        canLogin: user.canLogin,
-        createdAt: user.createdAt,
-        updatedAt: user.updatedAt,
-      },
+      data: plainUser,
     };
   }
 }
