@@ -18,7 +18,7 @@ import {
   UpdateUserDto,
 } from './users.dto';
 import { Users } from './users.model';
-
+import { Products } from 'src/products/products.model';
 @Injectable()
 export class UsersService {
   constructor(
@@ -147,28 +147,16 @@ export class UsersService {
 
   async updateUser(id: number, updateUserDto: UpdateUserDto, language = 'en') {
     const user = await this.usersModel.findByPk(id);
-
+    const { name, phone, role, canLogin } = updateUserDto;
     if (!user) {
       throw new NotFoundException(getLanguageValue(language, 'user_not_found'));
     }
 
-    if (updateUserDto.code && updateUserDto.code !== user.code) {
-      const existedUser = await this.usersModel.findOne({
-        where: {
-          code: updateUserDto.code,
-        },
-        paranoid: false,
-      });
-
-      if (existedUser) {
-        throw new BadRequestException(
-          getLanguageValue(language, 'user_already_exists'),
-        );
-      }
-    }
-
     const dataUpdate: Partial<UpdateUserDto> = {
-      ...updateUserDto,
+      name: name,
+      phone: phone,
+      role: role,
+      canLogin: canLogin,
     };
 
     if (updateUserDto.password) {
@@ -229,6 +217,22 @@ export class UsersService {
       attributes: {
         exclude: ['password'],
       },
+      include: [
+        {
+          model: Products,
+          as: 'ownedProducts',
+          attributes: [
+            'id',
+            'name',
+            'description',
+            'price',
+            'ownerId',
+            'createdAt',
+            'updatedAt',
+          ],
+          required: false,
+        },
+      ],
       limit,
       offset,
       order: [
@@ -253,6 +257,22 @@ export class UsersService {
       attributes: {
         exclude: ['password'],
       },
+      include: [
+        {
+          model: Products,
+          as: 'ownedProducts',
+          attributes: [
+            'id',
+            'name',
+            'description',
+            'price',
+            'ownerId',
+            'createdAt',
+            'updatedAt',
+          ],
+          required: false,
+        },
+      ],
     });
 
     if (!user) {

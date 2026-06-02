@@ -21,6 +21,11 @@ export class CreateProductDto {
   @IsNumber()
   @Min(0)
   price!: number;
+
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  ownerId!: number;
 }
 
 export class QueryProductDto {
@@ -35,6 +40,12 @@ export class QueryProductDto {
   @IsInt()
   @Min(1)
   limit?: number = 10;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  ownerId?: number;
 
   @IsOptional()
   @IsString()
@@ -55,4 +66,10 @@ export class UpdateProductDto {
   @IsNumber()
   @Min(0)
   price?: number;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  ownerId?: number;
 }

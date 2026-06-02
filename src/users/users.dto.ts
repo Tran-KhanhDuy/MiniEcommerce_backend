@@ -83,15 +83,6 @@ export class CreateUserDto {
 
 export class UpdateUserDto {
   @ApiPropertyOptional({
-    description: 'Unique user code',
-    example: 'U001',
-  })
-  @IsString()
-  @IsOptional()
-  @MaxLength(50)
-  code?: string;
-
-  @ApiPropertyOptional({
     description: 'User name',
     example: 'Nguyen Van A',
   })

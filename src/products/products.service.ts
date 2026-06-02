@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/sequelize';
 import { Op, WhereOptions } from 'sequelize';
 
 import { getLanguageValue } from 'src/common/helpers/language.helper';
+import { Users } from 'src/users/users.model';
 import {
   CreateProductDto,
   QueryProductDto,
@@ -15,13 +16,25 @@ export class ProductsService {
   constructor(
     @InjectModel(Products)
     private readonly productsModel: typeof Products,
+
+    @InjectModel(Users)
+    private readonly usersModel: typeof Users,
   ) {}
 
-  async createProduct(createProductDto: CreateProductDto) {
+  async createProduct(createProductDto: CreateProductDto, language = 'en') {
+    const { name, description, price } = createProductDto;
+    const owner = await this.usersModel.findByPk(createProductDto.ownerId, {
+      attributes: ['id'],
+    });
+    if (!owner) {
+      throw new BadRequestException(
+        getLanguageValue(language, 'user_not_found'),
+      );
+    }
     const product = await this.productsModel.create({
-      name: createProductDto.name,
-      description: createProductDto.description ?? null,
-      price: createProductDto.price ?? 0,
+      name: name,
+      description: description ?? null,
+      price: price ?? 0,
     });
 
     return product;
@@ -35,6 +48,10 @@ export class ProductsService {
     const keyword = query.search?.trim();
 
     const productWhere: WhereOptions<Products> = {};
+
+    if (query.ownerId) {
+      productWhere.ownerId = Number(query.ownerId);
+    }
 
     if (keyword) {
       productWhere[Op.or] = [
@@ -53,6 +70,14 @@ export class ProductsService {
 
     const { rows, count } = await this.productsModel.findAndCountAll({
       where: productWhere,
+      include: [
+        {
+          model: Users,
+          as: 'owner',
+          attributes: ['id', 'code', 'name', 'phone', 'role'],
+          required: false,
+        },
+      ],
       limit,
       offset,
       order: [
@@ -60,6 +85,14 @@ export class ProductsService {
         ['id', 'DESC'],
       ],
       distinct: true,
+    });
+    const items = rows.map((row) => {
+      const product = row.get({ plain: true }) as any;
+
+      return {
+        ...product,
+        ownerName: product.owner?.name ?? null,
+      };
     });
 
     return {
@@ -72,7 +105,16 @@ export class ProductsService {
   }
 
   async findOne(id: number, language = 'en') {
-    const product = await this.productsModel.findByPk(id);
+    const product = await this.productsModel.findByPk(id, {
+      include: [
+        {
+          model: Users,
+          as: 'owner',
+          attributes: ['id', 'code', 'name', 'phone', 'role'],
+          required: false,
+        },
+      ],
+    });
 
     if (!product) {
       throw new BadRequestException(
@@ -80,7 +122,12 @@ export class ProductsService {
       );
     }
 
-    return product;
+    const plainProduct = product.get({ plain: true }) as any;
+
+    return {
+      ...plainProduct,
+      ownerName: plainProduct.owner?.name ?? null,
+    };
   }
 
   async updateProduct(
@@ -89,17 +136,30 @@ export class ProductsService {
     language = 'en',
   ) {
     const product = await this.productsModel.findByPk(id);
+    const { name, description, price, ownerId } = updateProductDto;
 
     if (!product) {
       throw new BadRequestException(
         getLanguageValue(language, 'product_not_found'),
       );
     }
+    if (updateProductDto.ownerId) {
+      const owner = await this.usersModel.findByPk(updateProductDto.ownerId, {
+        attributes: ['id'],
+      });
+
+      if (!owner) {
+        throw new BadRequestException(
+          getLanguageValue(language, 'user_not_found'),
+        );
+      }
+    }
 
     await product.update({
-      name: updateProductDto.name,
-      description: updateProductDto.description,
-      price: updateProductDto.price,
+      name: name,
+      description: description,
+      price: price,
+      ownerId: ownerId,
     });
 
     return this.findOne(id, language);
