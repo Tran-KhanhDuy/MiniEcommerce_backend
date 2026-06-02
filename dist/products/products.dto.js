@@ -16,7 +16,7 @@ class CreateProductDto {
     name;
     description;
     price;
-    userId;
+    ownerId;
 }
 exports.CreateProductDto = CreateProductDto;
 __decorate([
@@ -38,13 +38,13 @@ __decorate([
 __decorate([
     (0, class_transformer_1.Type)(() => Number),
     (0, class_validator_1.IsInt)(),
-    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.Min)(1),
     __metadata("design:type", Number)
-], CreateProductDto.prototype, "userId", void 0);
+], CreateProductDto.prototype, "ownerId", void 0);
 class QueryProductDto {
     page = 1;
     limit = 10;
-    userId;
+    ownerId;
     search;
 }
 exports.QueryProductDto = QueryProductDto;
@@ -68,7 +68,7 @@ __decorate([
     (0, class_validator_1.IsInt)(),
     (0, class_validator_1.Min)(1),
     __metadata("design:type", Number)
-], QueryProductDto.prototype, "userId", void 0);
+], QueryProductDto.prototype, "ownerId", void 0);
 __decorate([
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
@@ -78,7 +78,7 @@ class UpdateProductDto {
     name;
     description;
     price;
-    userId;
+    ownerId;
 }
 exports.UpdateProductDto = UpdateProductDto;
 __decorate([
@@ -104,5 +104,5 @@ __decorate([
     (0, class_validator_1.IsInt)(),
     (0, class_validator_1.Min)(1),
     __metadata("design:type", Number)
-], UpdateProductDto.prototype, "userId", void 0);
+], UpdateProductDto.prototype, "ownerId", void 0);
 //# sourceMappingURL=products.dto.js.map

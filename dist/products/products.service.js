@@ -16,27 +16,29 @@ exports.ProductsService = void 0;
 const common_1 = require("@nestjs/common");
 const sequelize_1 = require("@nestjs/sequelize");
 const sequelize_2 = require("sequelize");
-const user_model_1 = require("../users/user.model");
+const language_helper_1 = require("../common/helpers/language.helper");
+const users_model_1 = require("../users/users.model");
 const products_model_1 = require("./products.model");
 let ProductsService = class ProductsService {
-    usersModel;
     productsModel;
-    constructor(usersModel, productsModel) {
-        this.usersModel = usersModel;
+    usersModel;
+    constructor(productsModel, usersModel) {
         this.productsModel = productsModel;
+        this.usersModel = usersModel;
     }
-    async createProduct(createProductDto) {
-        const user = await this.usersModel.findByPk(createProductDto.userId, {
+    async createProduct(createProductDto, language = 'en') {
+        const { name, description, price, ownerId } = createProductDto;
+        const owner = await this.usersModel.findByPk(ownerId, {
             attributes: ['id'],
         });
-        if (!user) {
-            throw new common_1.BadRequestException('User does not exist');
+        if (!owner) {
+            throw new common_1.BadRequestException((0, language_helper_1.getLanguageValue)(language, 'user_not_found'));
         }
         const product = await this.productsModel.create({
-            name: createProductDto.name,
-            description: createProductDto.description ?? null,
-            price: createProductDto.price ?? 0,
-            userId: createProductDto.userId,
+            name: name,
+            description: description ?? null,
+            price: price ?? 0,
+            ownerId: ownerId,
         });
         return product;
     }
@@ -44,101 +46,116 @@ let ProductsService = class ProductsService {
         const page = Number(query.page) || 1;
         const limit = Number(query.limit) || 10;
         const offset = (page - 1) * limit;
-        const { userId, search } = query;
-        const keyword = search?.trim();
+        const keyword = query.search?.trim();
         const productWhere = {};
-        if (userId) {
-            productWhere.userId = Number(userId);
+        if (query.ownerId) {
+            productWhere.ownerId = Number(query.ownerId);
         }
         if (keyword) {
-            Object.assign(productWhere, {
-                [sequelize_2.Op.or]: [
-                    {
-                        name: {
-                            [sequelize_2.Op.like]: `%${keyword}%`,
-                        },
+            productWhere[sequelize_2.Op.or] = [
+                {
+                    name: {
+                        [sequelize_2.Op.like]: `%${keyword}%`,
                     },
-                    {
-                        '$user.name$': {
-                            [sequelize_2.Op.like]: `%${keyword}%`,
-                        },
+                },
+                {
+                    description: {
+                        [sequelize_2.Op.like]: `%${keyword}%`,
                     },
-                    {
-                        '$user.phone$': {
-                            [sequelize_2.Op.like]: `%${keyword}%`,
-                        },
-                    },
-                ],
-            });
+                },
+            ];
         }
         const { rows, count } = await this.productsModel.findAndCountAll({
             where: productWhere,
             include: [
                 {
-                    model: user_model_1.Users,
-                    attributes: ['code', 'name', 'phone', 'role'],
+                    model: users_model_1.Users,
+                    as: 'owner',
+                    attributes: ['id', 'code', 'name', 'phone', 'role'],
                     required: false,
                 },
             ],
             limit,
             offset,
-            order: [['createdAt', 'DESC']],
+            order: [
+                ['createdAt', 'DESC'],
+                ['id', 'DESC'],
+            ],
             distinct: true,
         });
+        const items = rows.map((row) => {
+            const product = row.get({ plain: true });
+            return {
+                ...product,
+                ownerName: product.owner?.name ?? null,
+            };
+        });
         return {
-            items: rows,
+            items,
             total: count,
             page,
             limit,
             totalPages: Math.ceil(count / limit),
         };
     }
-    async findOne(id) {
+    async findOne(id, language = 'en') {
         const product = await this.productsModel.findByPk(id, {
             include: [
                 {
-                    model: user_model_1.Users,
-                    attributes: ['code', 'name', 'phone', 'role'],
+                    model: users_model_1.Users,
+                    as: 'owner',
+                    attributes: ['id', 'code', 'name', 'phone', 'role'],
+                    required: false,
                 },
             ],
         });
         if (!product) {
-            throw new common_1.NotFoundException('Product not found');
+            throw new common_1.BadRequestException((0, language_helper_1.getLanguageValue)(language, 'product_not_found'));
         }
-        return product;
+        const plainProduct = product.get({ plain: true });
+        return {
+            ...plainProduct,
+            ownerName: plainProduct.owner?.name ?? null,
+        };
     }
-    async updateProduct(id, updateProductDto) {
+    async updateProduct(id, updateProductDto, language = 'en') {
         const product = await this.productsModel.findByPk(id);
+        const { name, description, price, ownerId } = updateProductDto;
         if (!product) {
-            throw new common_1.NotFoundException('Product not found');
+            throw new common_1.BadRequestException((0, language_helper_1.getLanguageValue)(language, 'product_not_found'));
         }
-        if (updateProductDto.userId) {
-            const user = await this.usersModel.findByPk(updateProductDto.userId, {
+        if (ownerId) {
+            const owner = await this.usersModel.findByPk(ownerId, {
                 attributes: ['id'],
             });
-            if (!user) {
-                throw new common_1.BadRequestException('User does not exist');
+            if (!owner) {
+                throw new common_1.BadRequestException((0, language_helper_1.getLanguageValue)(language, 'user_not_found'));
             }
         }
-        await product.update(updateProductDto);
-        return this.findOne(id);
+        await product.update({
+            name: name,
+            description: description,
+            price: price,
+            ownerId: ownerId,
+        });
+        return this.findOne(id, language);
     }
-    async deleteProduct(id) {
+    async deleteProduct(id, language = 'en') {
         const product = await this.productsModel.findByPk(id);
         if (!product) {
-            throw new common_1.NotFoundException('Product not found');
+            throw new common_1.BadRequestException((0, language_helper_1.getLanguageValue)(language, 'product_not_found'));
         }
         await product.destroy();
         return {
-            message: 'Product deleted successfully',
+            message: (0, language_helper_1.getLanguageValue)(language, 'product_deleted'),
         };
     }
 };
 exports.ProductsService = ProductsService;
 exports.ProductsService = ProductsService = __decorate([
     (0, common_1.Injectable)(),
-    __param(0, (0, sequelize_1.InjectModel)(user_model_1.Users)),
-    __param(1, (0, sequelize_1.InjectModel)(products_model_1.Products)),
+    __param(0, (0, sequelize_1.InjectModel)(products_model_1.Products)),
+    __param(1, (0, sequelize_1.InjectModel)(users_model_1.Users)),
     __metadata("design:paramtypes", [Object, Object])
 ], ProductsService);
 //# sourceMappingURL=products.service.js.map

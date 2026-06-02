@@ -1,7 +1,18 @@
+# dependencies
 node_modules
+/node_modules
+
 # compiled output
 /dist
-/node_modules
+/disk
+
+# env
+.env
+.env.*
+!.env.example
+
+# uploads
+/uploads
 
 # Logs
 logs
@@ -34,5 +45,3 @@ lerna-debug.log*
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
-
-/uploads

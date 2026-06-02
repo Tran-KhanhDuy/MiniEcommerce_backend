@@ -1,21 +1,21 @@
-import { Users } from '../users/user.model';
+import { Users } from "../users/users.model";
 import { CreateProductDto, QueryProductDto, UpdateProductDto } from './products.dto';
 import { Products } from './products.model';
 export declare class ProductsService {
-    private readonly usersModel;
     private readonly productsModel;
-    constructor(usersModel: typeof Users, productsModel: typeof Products);
-    createProduct(createProductDto: CreateProductDto): Promise<Products>;
+    private readonly usersModel;
+    constructor(productsModel: typeof Products, usersModel: typeof Users);
+    createProduct(createProductDto: CreateProductDto, language?: string): Promise<Products>;
     findAll(query: QueryProductDto): Promise<{
-        items: Products[];
+        items: any[];
         total: number;
         page: number;
         limit: number;
         totalPages: number;
     }>;
-    findOne(id: number): Promise<Products>;
-    updateProduct(id: number, updateProductDto: UpdateProductDto): Promise<Products>;
-    deleteProduct(id: number): Promise<{
+    findOne(id: number, language?: string): Promise<any>;
+    updateProduct(id: number, updateProductDto: UpdateProductDto, language?: string): Promise<any>;
+    deleteProduct(id: number, language?: string): Promise<{
         message: string;
     }>;
 }

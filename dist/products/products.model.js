@@ -11,7 +11,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Products = void 0;
 const sequelize_typescript_1 = require("sequelize-typescript");
-const user_model_1 = require("../users/user.model");
+const users_model_1 = require("../users/users.model");
 let Products = class Products extends sequelize_typescript_1.Model {
 };
 exports.Products = Products;
@@ -48,17 +48,17 @@ __decorate([
     __metadata("design:type", Number)
 ], Products.prototype, "price", void 0);
 __decorate([
-    (0, sequelize_typescript_1.ForeignKey)(() => user_model_1.Users),
+    (0, sequelize_typescript_1.ForeignKey)(() => users_model_1.Users),
     (0, sequelize_typescript_1.Column)({
         type: sequelize_typescript_1.DataType.INTEGER,
-        allowNull: false,
+        allowNull: true,
     }),
-    __metadata("design:type", Number)
-], Products.prototype, "userId", void 0);
+    __metadata("design:type", Object)
+], Products.prototype, "ownerId", void 0);
 __decorate([
-    (0, sequelize_typescript_1.BelongsTo)(() => user_model_1.Users),
-    __metadata("design:type", user_model_1.Users)
-], Products.prototype, "user", void 0);
+    (0, sequelize_typescript_1.BelongsTo)(() => users_model_1.Users),
+    __metadata("design:type", users_model_1.Users)
+], Products.prototype, "owner", void 0);
 exports.Products = Products = __decorate([
     (0, sequelize_typescript_1.Table)({
         tableName: 'products',

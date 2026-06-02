@@ -35,10 +35,10 @@ export class ProductsService {
     }
 
     const product = await this.productsModel.create({
-      name: name,
+      name,
       description: description ?? null,
       price: price ?? 0,
-      ownerId: ownerId,
+      ownerId,
     });
 
     return product;
@@ -161,10 +161,10 @@ export class ProductsService {
     }
 
     await product.update({
-      name: name,
-      description: description,
-      price: price,
-      ownerId: ownerId,
+      name,
+      description,
+      price,
+      ownerId,
     });
 
     return this.findOne(id, language);

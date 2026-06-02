@@ -5,14 +5,14 @@ export declare class ProductsController {
     constructor(productsService: ProductsService);
     create(createProductDto: CreateProductDto): Promise<import("./products.model").Products>;
     findAll(query: QueryProductDto): Promise<{
-        items: import("./products.model").Products[];
+        items: any[];
         total: number;
         page: number;
         limit: number;
         totalPages: number;
     }>;
-    findOne(id: number): Promise<import("./products.model").Products>;
-    update(id: number, updateProductDto: UpdateProductDto): Promise<import("./products.model").Products>;
+    findOne(id: number): Promise<any>;
+    update(id: number, updateProductDto: UpdateProductDto): Promise<any>;
     deleteProduct(id: number): Promise<{
         message: string;
     }>;
