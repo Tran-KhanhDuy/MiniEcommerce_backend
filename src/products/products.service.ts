@@ -22,8 +22,9 @@ export class ProductsService {
   ) {}
 
   async createProduct(createProductDto: CreateProductDto, language = 'en') {
-    const { name, description, price } = createProductDto;
-    const owner = await this.usersModel.findByPk(createProductDto.ownerId, {
+    const { name, description, price, ownerId } = createProductDto;
+    
+    const owner = await this.usersModel.findByPk(ownerId, {
       attributes: ['id'],
     });
     if (!owner) {
@@ -32,9 +33,10 @@ export class ProductsService {
       );
     }
     const product = await this.productsModel.create({
-      name: name,
+      name,
       description: description ?? null,
       price: price ?? 0,
+      ownerId,
     });
 
     return product;
@@ -96,7 +98,7 @@ export class ProductsService {
     });
 
     return {
-      items: rows,
+      items,
       total: count,
       page,
       limit,
@@ -156,10 +158,10 @@ export class ProductsService {
     }
 
     await product.update({
-      name: name,
-      description: description,
-      price: price,
-      ownerId: ownerId,
+      name,
+      description,
+      price,
+      ownerId,
     });
 
     return this.findOne(id, language);

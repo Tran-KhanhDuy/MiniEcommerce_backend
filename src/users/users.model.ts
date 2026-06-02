@@ -21,6 +21,7 @@ export type UsersAttributes = {
   code: string;
   name: string;
   phone: string;
+  email: string
   role: UserRole;
   password: string;
   canLogin: boolean;
@@ -65,6 +66,12 @@ export class Users extends Model<UsersAttributes, UsersCreationAttributes> {
     allowNull: false,
   })
   declare phone: string;
+
+  @Column({
+    type: DataType.STRING(50),
+    allowNull: false,
+  })
+  declare email: string;
 
   @Column({
     type: DataType.ENUM(UserRole.ADMIN, UserRole.CUSTOMER),
