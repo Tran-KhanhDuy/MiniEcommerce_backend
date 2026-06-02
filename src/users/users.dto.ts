@@ -56,8 +56,8 @@ export class CreateUserDto {
   })
   @IsString()
   @IsNotEmpty()
-  @MaxLength(20)
   @Length(1, 11, { message: 'phone_must_be_from_1_to_11_number' })
+  @Matches(/^\d+$/, { message: 'phone_must_be_number' })
   phone!: string;
 
   @ApiProperty({
