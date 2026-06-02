@@ -13,8 +13,8 @@ import {
 } from 'sequelize-typescript';
 import type { Optional } from 'sequelize';
 
-import { Products } from 'src/products/products.model';
 import { UserRole } from '../common/enums/user-role.enum';
+import { Products } from 'src/products/products.model';
 
 export type UsersAttributes = {
   id: number;
@@ -26,12 +26,12 @@ export type UsersAttributes = {
   canLogin: boolean;
   createdAt?: Date;
   updatedAt?: Date;
-  deletedAt?: 'deletedAt';
+  deletedAt?: Date;
 };
 
 export type UsersCreationAttributes = Optional<
   UsersAttributes,
-  'id' | 'role' | 'canLogin' | 'createdAt' | 'updatedAt'
+  'id' | 'role' | 'canLogin' | 'createdAt' | 'updatedAt' | 'deletedAt'
 >;
 
 @Table({
@@ -53,6 +53,7 @@ export class Users extends Model<UsersAttributes, UsersCreationAttributes> {
     allowNull: false,
   })
   declare code: string;
+
   @Column({
     type: DataType.STRING(255),
     allowNull: false,
@@ -66,9 +67,9 @@ export class Users extends Model<UsersAttributes, UsersCreationAttributes> {
   declare phone: string;
 
   @Column({
-    type: DataType.ENUM(UserRole.ADMIN, UserRole.USER),
+    type: DataType.ENUM(UserRole.ADMIN, UserRole.CUSTOMER),
     allowNull: false,
-    defaultValue: UserRole.USER,
+    defaultValue: UserRole.CUSTOMER,
   })
   declare role: UserRole;
 
@@ -85,6 +86,12 @@ export class Users extends Model<UsersAttributes, UsersCreationAttributes> {
   })
   declare canLogin: boolean;
 
+  @HasMany(() => Products, {
+    foreignKey: 'ownerId',
+    as: 'ownedProducts',
+  })
+  declare ownedProducts: Products[];
+
   @CreatedAt
   @Column(DataType.DATE)
   declare createdAt: Date;
@@ -96,7 +103,4 @@ export class Users extends Model<UsersAttributes, UsersCreationAttributes> {
   @DeletedAt
   @Column(DataType.DATE)
   declare deletedAt?: Date;
-
-  @HasMany(() => Products)
-  declare products: Products[];
 }

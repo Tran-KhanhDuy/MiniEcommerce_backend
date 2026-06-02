@@ -24,9 +24,10 @@ export class CreateProductDto {
 
   @Type(() => Number)
   @IsInt()
-  @IsNotEmpty()
-  userId!: number;
+  @Min(1)
+  ownerId!: number;
 }
+
 export class QueryProductDto {
   @IsOptional()
   @Type(() => Number)
@@ -44,7 +45,7 @@ export class QueryProductDto {
   @Type(() => Number)
   @IsInt()
   @Min(1)
-  userId?: number;
+  ownerId?: number;
 
   @IsOptional()
   @IsString()
@@ -70,5 +71,5 @@ export class UpdateProductDto {
   @Type(() => Number)
   @IsInt()
   @Min(1)
-  userId?: number;
+  ownerId?: number;
 }

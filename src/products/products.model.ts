@@ -9,13 +9,13 @@ import {
   Table,
 } from 'sequelize-typescript';
 
-import { Users } from '../users/user.model';
+import { Users } from 'src/users/users.model';
 
 export interface ProductCreationAttributes {
   name: string;
-  userId: number;
   description?: string | null;
   price?: number;
+  ownerId?: number | null;
 }
 
 @Table({
@@ -45,8 +45,8 @@ export class Products extends Model<Products, ProductCreationAttributes> {
     type: DataType.DECIMAL(15, 2),
     allowNull: false,
     defaultValue: 0,
-    get(this: any) {
-      const value = this.getDataValue('price') as number;
+    get(this: Products) {
+      const value = this.getDataValue('price') as string | number | null;
       return value === null ? 0 : Number(value);
     },
   })
@@ -55,10 +55,10 @@ export class Products extends Model<Products, ProductCreationAttributes> {
   @ForeignKey(() => Users)
   @Column({
     type: DataType.INTEGER,
-    allowNull: false,
+    allowNull: true,
   })
-  declare userId: number;
+  declare ownerId: number | null;
 
   @BelongsTo(() => Users)
-  declare user: Users;
+  declare owner: Users;
 }

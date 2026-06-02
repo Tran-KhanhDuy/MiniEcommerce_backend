@@ -3,12 +3,12 @@ import { SequelizeModule } from '@nestjs/sequelize';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
-import { Users } from '../users/user.model';
+import { AdminGuard } from 'src/common/guards/admin.guard';
+import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
+import { Users } from 'src/users/users.model';
 import { ProductsController } from './products.controller';
 import { Products } from './products.model';
 import { ProductsService } from './products.service';
-import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
-import { AdminGuard } from 'src/common/guards/admin.guard';
 
 @Module({
   imports: [

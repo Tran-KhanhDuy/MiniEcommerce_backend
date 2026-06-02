@@ -64,12 +64,10 @@ export class CreateUserDto {
   @ApiProperty({
     description: 'User role',
     enum: UserRole,
-    example: UserRole.USER,
+    example: UserRole.CUSTOMER,
   })
   @IsEnum(UserRole)
-  @IsNotEmpty()
-  @Matches(/^\S+$/, { message: 'role_not_contain_spaces' })
-
+  @IsNotEmpty({ message: 'role_required' })
   role!: UserRole;
 
   @ApiProperty({
@@ -79,20 +77,11 @@ export class CreateUserDto {
   @IsString()
   @IsNotEmpty()
   @MaxLength(255)
-  @Matches(/^\S+$/, { message: 'Password_must_not_contain_spaces' })
+  @Matches(/^\S+$/, { message: 'password_must_not_contain_spaces' })
   password!: string;
 }
 
 export class UpdateUserDto {
-  @ApiPropertyOptional({
-    description: 'Unique user code',
-    example: 'U001',
-  })
-  @IsString()
-  @IsOptional()
-  @MaxLength(50)
-  code?: string;
-
   @ApiPropertyOptional({
     description: 'User name',
     example: 'Nguyen Van A',
@@ -114,7 +103,7 @@ export class UpdateUserDto {
   @ApiPropertyOptional({
     description: 'User role',
     enum: UserRole,
-    example: UserRole.USER,
+    example: UserRole.CUSTOMER,
   })
   @IsEnum(UserRole)
   @IsOptional()
