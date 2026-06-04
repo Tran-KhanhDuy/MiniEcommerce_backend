@@ -95,21 +95,28 @@ export class UsersService {
 
     const existedUser = await this.usersModel.findOne({
       where: {
-        code,
+        [Op.or]: [{ code }, { email }, { phone }],
       },
       paranoid: false,
     });
-    const existedEmail = await this.usersModel.findOne({
-      where: {
-        email,
-      },
-      paranoid: false,
-    });
-
     if (existedUser) {
-      throw new BadRequestException(
-        getLanguageValue(language, 'user_already_exists'),
-      );
+      if (existedUser.code === code) {
+        throw new BadRequestException(
+          getLanguageValue(language, 'user_code_already_exists'),
+        );
+      }
+
+      if (existedUser.email === email) {
+        throw new BadRequestException(
+          getLanguageValue(language, 'email_already_exists'),
+        );
+      }
+
+      if (existedUser.phone === phone) {
+        throw new BadRequestException(
+          getLanguageValue(language, 'phone_already_exists'),
+        );
+      }
     }
 
     const salt = await bcrypt.genSalt(
