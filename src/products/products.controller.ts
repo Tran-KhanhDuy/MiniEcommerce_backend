@@ -48,7 +48,7 @@ export class ProductsController {
 
   @Patch(':id')
   @ApiBearerAuth('JWT-auth')
-  @UseGuards(JwtAuthGuard, AdminGuard)
+  @UseGuards(JwtAuthGuard)
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateProductDto: UpdateProductDto,
@@ -58,7 +58,7 @@ export class ProductsController {
 
   @Delete(':id')
   @ApiBearerAuth('JWT-auth')
-  @UseGuards(JwtAuthGuard, AdminGuard)
+  @UseGuards(JwtAuthGuard)
   deleteProduct(@Param('id',ParseIntPipe)id: number){
     return this.productsService.deleteProduct(id);
   }

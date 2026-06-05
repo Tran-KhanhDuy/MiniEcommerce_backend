@@ -132,6 +132,10 @@ export class UpdateUserDto {
   @IsBoolean()
   @IsOptional()
   canLogin?: boolean;
+
+  @IsEmail()
+  @IsOptional()
+  email?: string;
 }
 
 export class GetUsersFilterDto {

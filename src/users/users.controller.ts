@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Headers,
+  Req,
   Param,
   ParseIntPipe,
   Patch,
@@ -73,18 +74,18 @@ export class UsersController {
     return this.usersService.findOneUser(id, language);
   }
 
-  @Patch(':id')
+  @Patch('me')
   @ApiOperation({
     summary: 'Update user',
   })
   @ApiBearerAuth('JWT-auth')
-  @UseGuards(JwtAuthGuard, AdminGuard)
+  @UseGuards(JwtAuthGuard)
   updateUser(
-    @Param('id', ParseIntPipe) id: number,
+    @Req() req: any,
     @Body() updateUserDto: UpdateUserDto,
     @Headers('language') language = 'en',
   ) {
-    return this.usersService.updateUser(id, updateUserDto, language);
+    return this.usersService.updateMe(req.user.id, updateUserDto, language);
   }
 
   @Delete(':id')
