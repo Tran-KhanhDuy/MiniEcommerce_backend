@@ -161,26 +161,59 @@ export class UsersService {
     };
   }
 
-  async updateUser(id: number, updateUserDto: UpdateUserDto, language = 'en') {
+  async updateMe(id: number, updateUserDto: UpdateUserDto, language = 'en') {
+    const { name, phone, email, password } = updateUserDto;
+
     const user = await this.usersModel.findByPk(id);
-    const { name, phone, role, canLogin } = updateUserDto;
+
     if (!user) {
       throw new NotFoundException(getLanguageValue(language, 'user_not_found'));
+    }
+
+    // Note:
+    // Nếu user update email hoặc phone
+    // thì kiểm tra email/phone đó có bị user khác dùng chưa.
+    if (email || phone) {
+      const existedUser = await this.usersModel.findOne({
+        where: {
+          id: {
+            [Op.ne]: id,
+          },
+          [Op.or]: [
+            ...(email ? [{ email }] : []),
+            ...(phone ? [{ phone }] : []),
+          ],
+        },
+        paranoid: false,
+      });
+
+      if (existedUser) {
+        if (email && existedUser.email === email) {
+          throw new BadRequestException(
+            getLanguageValue(language, 'email_already_exists'),
+          );
+        }
+
+        if (phone && existedUser.phone === phone) {
+          throw new BadRequestException(
+            getLanguageValue(language, 'phone_already_exists'),
+          );
+        }
+      }
     }
 
     const dataUpdate: Partial<UpdateUserDto> = {
       name,
       phone,
-      role,
-      canLogin,
+      email,
     };
 
-    if (updateUserDto.password) {
+    if (password) {
       const salt = await bcrypt.genSalt(
         Number(process.env.BCRYPT_SALT_ROUNDS) || 10,
       );
 
-      dataUpdate.password = await bcrypt.hash(updateUserDto.password, salt);
+      dataUpdate.password = await bcrypt.hash(password, salt);
     }
 
     await user.update(dataUpdate);
@@ -188,6 +221,7 @@ export class UsersService {
     return {
       id: user.id,
       code: user.code,
+      email: user.email,
       name: user.name,
       phone: user.phone,
       role: user.role,
