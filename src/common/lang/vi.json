@@ -1,0 +1,16 @@
+{   
+    "login_failed" : "đăng nhập thất bại",
+    "account_locked": "tài khoản đã bị khoác ",
+    "invalid_pasword": "mật khẩu không đúng",
+    "user_already_exists" : "Người dùng đã tồn tại",
+    "user_not_found": "Không tìm thấy người dùng",
+    "delete_user_succes" : "Xóa người dùng thành công",
+    "user_found": "đã tìm thấy người dùng",
+    "admin_permission_required": "Cần quyền Admin để thực thi",
+    "token_not_provided": "Token chưa được cung cấp",
+    "invalid_token_format": "Token không đúng định dạng Bearer",
+    "jwt_secret_not_configured": "JWT secret chưa được cấu hình",
+    "invalid_or_expired_token": "Token không đúng hoặc hết hạn",
+    "product_not_found": "Không tìm thấy sản phẩm",
+    "product_deleted_successfully": "xóa sản phẩm thành công"
+}
