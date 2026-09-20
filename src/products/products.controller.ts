@@ -31,6 +31,7 @@ export class ProductsController {
   @Post()
   @ApiBearerAuth('JWT-auth')
   @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
   @Roles(UserRole.CUSTOMER)
 
   create(@Body() createProductDto: CreateProductDto, @Req() req: any) {
@@ -39,21 +40,24 @@ export class ProductsController {
 
   @Get()
   @ApiBearerAuth('JWT-auth')
-  @UseGuards(JwtAuthGuard,AdminGuard)
+  @UseGuards(JwtAuthGuard,RolesGuard)
+  @Roles(UserRole.ADMIN)
   findAll(@Query() query: QueryProductDto) {
     return this.productsService.findAll(query);
   }
 
   @Get(':id')
   @ApiBearerAuth('JWT-auth')
-  @UseGuards(JwtAuthGuard,AdminGuard)
+  @UseGuards(JwtAuthGuard,RolesGuard)
+  @Roles(UserRole.ADMIN)
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.productsService.findOne(id);
   }
 
   @Patch(':id')
   @ApiBearerAuth('JWT-auth')
-  @UseGuards(JwtAuthGuard)
+ @UseGuards(JwtAuthGuard,RolesGuard)
+  @Roles(UserRole.ADMIN)
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateProductDto: UpdateProductDto,
