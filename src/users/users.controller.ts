@@ -22,8 +22,10 @@ import {
 } from './users.dto';
 import { UsersService } from './users.service';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
-import { AdminGuard } from 'src/common/guards/admin.guard';
+import { RolesGuard } from 'src/common/guards/role.guard';
 import { PagingDto } from 'src/common/dto/paging.dto';
+import { Roles } from 'src/common/guards/roles.decorator';
+import { UserRole } from 'src/common/enums/user-role.enum';
 
 @ApiTags('Users')
 @Controller('users')
@@ -43,7 +45,8 @@ export class UsersController {
     summary: 'Create new user',
   })
   @ApiBearerAuth('JWT-auth')
-  @UseGuards(JwtAuthGuard, AdminGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
   createUser(
     @Body() createUserDto: CreateUserDto,
     @Headers('language') language = 'en',
@@ -56,7 +59,8 @@ export class UsersController {
     summary: 'Get users list',
   })
   @ApiBearerAuth('JWT-auth')
-  @UseGuards(JwtAuthGuard, AdminGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
   findAllUser(@Query() query: GetUsersFilterDto, @Query() paging: PagingDto) {
     return this.usersService.findAllUser(query, paging);
   }
@@ -66,7 +70,8 @@ export class UsersController {
     summary: 'Get user detail',
   })
   @ApiBearerAuth('JWT-auth')
-  @UseGuards(JwtAuthGuard, AdminGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
   findOneUser(
     @Param('id', ParseIntPipe) id: number,
     @Headers('language') language = 'en',
@@ -93,7 +98,8 @@ export class UsersController {
     summary: 'Delete user',
   })
   @ApiBearerAuth('JWT-auth')
-  @UseGuards(JwtAuthGuard, AdminGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
   deleteUser(
     @Param('id', ParseIntPipe) id: number,
     @Headers('language') language = 'en',

@@ -16,7 +16,6 @@ import { CreateOrderDto, QueryOrderDto } from './orders.dto';
 import { OrdersService } from './orders.service';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 import { ApiBearerAuth } from '@nestjs/swagger';
-import { AdminGuard } from 'src/common/guards/admin.guard';
 
 @Controller('orders')
 export class OrdersController {

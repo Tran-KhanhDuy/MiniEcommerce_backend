@@ -9,7 +9,7 @@ import { OrdersController } from './orders.controller';
 import { OrdersService } from './orders.service';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { AdminGuard } from 'src/common/guards/admin.guard';
+import { RolesGuard } from 'src/common/guards/role.guard';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 @Module({
   imports: [
@@ -27,7 +27,7 @@ import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
     }),
   ],
   controllers: [OrdersController],
-  providers: [OrdersService, JwtAuthGuard, AdminGuard],
+  providers: [OrdersService, JwtAuthGuard, RolesGuard],
   exports: [OrdersService],
 })
 export class OrdersModule {}

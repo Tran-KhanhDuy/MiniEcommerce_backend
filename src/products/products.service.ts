@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Op, WhereOptions } from 'sequelize';
 
@@ -10,6 +10,7 @@ import {
   UpdateProductDto,
 } from './products.dto';
 import { Products } from './products.model';
+import { UserRole } from 'src/common/enums/user-role.enum';
 
 @Injectable()
 export class ProductsService {
@@ -21,11 +22,11 @@ export class ProductsService {
     private readonly usersModel: typeof Users,
   ) {}
 
-  async createProduct(createProductDto: CreateProductDto, language = 'en') {
-    const { name, description, price, ownerId } = createProductDto;
+  async createProduct(createProductDto: CreateProductDto, ownerId : number, language = 'en') {
+    const { name, description, price,} = createProductDto;
     
     const owner = await this.usersModel.findByPk(ownerId, {
-      attributes: ['id'],
+      attributes: ['id', 'role'],
     });
     if (!owner) {
       throw new BadRequestException(

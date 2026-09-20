@@ -22,12 +22,6 @@ export class CreateProductDto {
   @Min(0)
   @IsNotEmpty()
   price!: number;
-
-  @Type(() => Number)
-  @IsInt()
-  @Min(1)
-  @IsNotEmpty()
-  ownerId!: number;
 }
 
 export class QueryProductDto {

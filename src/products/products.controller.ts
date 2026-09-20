@@ -8,6 +8,7 @@ import {
   Patch,
   Post,
   Query,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 
@@ -19,7 +20,9 @@ import {
 import { ProductsService } from './products.service';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
-import { AdminGuard } from 'src/common/guards/admin.guard';
+import { RolesGuard } from 'src/common/guards/role.guard';
+import { UserRole } from 'src/common/enums/user-role.enum';
+import { Roles } from 'src/common/guards/roles.decorator';
 
 @Controller('products')
 export class ProductsController {
@@ -27,9 +30,11 @@ export class ProductsController {
 
   @Post()
   @ApiBearerAuth('JWT-auth')
-  @UseGuards(JwtAuthGuard)
-  create(@Body() createProductDto: CreateProductDto) {
-    return this.productsService.createProduct(createProductDto);
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.CUSTOMER)
+
+  create(@Body() createProductDto: CreateProductDto, @Req() req: any) {
+    return this.productsService.createProduct(createProductDto, req.user.id);
   }
 
   @Get()
