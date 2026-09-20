@@ -3,7 +3,7 @@ import { SequelizeModule } from '@nestjs/sequelize';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
-import { AdminGuard } from 'src/common/guards/admin.guard';
+import { RolesGuard} from 'src/common/guards/role.guard';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 import { Users } from 'src/users/users.model';
 import { ProductsController } from './products.controller';
@@ -26,7 +26,7 @@ import { ProductsService } from './products.service';
     }),
   ],
   controllers: [ProductsController],
-  providers: [ProductsService, JwtAuthGuard, AdminGuard],
+  providers: [ProductsService, JwtAuthGuard, RolesGuard],
   exports: [ProductsService],
 })
 export class ProductsModule {}
