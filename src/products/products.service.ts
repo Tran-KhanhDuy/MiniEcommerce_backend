@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Op, WhereOptions } from 'sequelize';
 
@@ -10,6 +10,7 @@ import {
   UpdateProductDto,
 } from './products.dto';
 import { Products } from './products.model';
+import { UserRole } from 'src/common/enums/user-role.enum';
 
 @Injectable()
 export class ProductsService {
@@ -21,26 +22,32 @@ export class ProductsService {
     private readonly usersModel: typeof Users,
   ) {}
 
-  async createProduct(createProductDto: CreateProductDto, language = 'en') {
-    const { name, description, price, ownerId } = createProductDto;
-    
-    const owner = await this.usersModel.findByPk(ownerId, {
-      attributes: ['id'],
-    });
-    if (!owner) {
-      throw new BadRequestException(
-        getLanguageValue(language, 'user_not_found'),
-      );
-    }
-    const product = await this.productsModel.create({
-      name,
-      description: description ?? null,
-      price: price ?? 0,
-      ownerId,
-    });
+  async createProduct(
+  createProductDto: CreateProductDto,
+  ownerId: number,
+  language = 'en',
+  ) {
+  const { name, description, price } = createProductDto;
 
-    return product;
+  const owner = await this.usersModel.findByPk(ownerId, {
+    attributes: ['id', 'role'],
+  });
+
+  if (!owner) {
+    throw new BadRequestException(
+      getLanguageValue(language, 'user_not_found'),
+    );
   }
+
+  const product = await this.productsModel.create({
+    name,
+    description: description ?? null,
+    price: price ?? 0,
+    ownerId,
+  });
+
+  return product;
+}
 
   async findAll(query: QueryProductDto) {
     const page = Number(query.page) || 1;
@@ -59,7 +66,7 @@ export class ProductsService {
       productWhere[Op.or] = [
         {
           name: {
-            [Op.like]: `%${keyword}%`,
+            [Op.like]: `%${keyword}%`, 
           },
         },
         {
@@ -167,19 +174,38 @@ export class ProductsService {
     return this.findOne(id, language);
   }
 
-  async deleteProduct(id: number, language = 'en') {
-    const product = await this.productsModel.findByPk(id);
 
-    if (!product) {
-      throw new BadRequestException(
-        getLanguageValue(language, 'product_not_found'),
-      );
-    }
+async deleteProduct(
+  id: number,
+  userId: number,
+  userRole: UserRole,
+  language = 'en',
+) {
+  const product = await this.productsModel.findByPk(id);
 
-    await product.destroy();
-
-    return {
-      message: getLanguageValue(language, 'product_deleted'),
-    };
+  if (!product) {
+    throw new BadRequestException(
+      getLanguageValue(language, 'product_not_found'),
+    );
   }
+
+  if (
+    userRole === UserRole.SELLER &&
+    Number(product.ownerId) !== Number(userId)
+  ) {
+    throw new ForbiddenException(
+      getLanguageValue(language, 'only_delete_your_own_products'),
+    );
+  }
+
+  await product.destroy();
+
+  return {
+    message: getLanguageValue(
+      language,
+      'product_deleted_successfully',
+    ),
+  };
+}
+
 }

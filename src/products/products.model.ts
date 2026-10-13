@@ -25,8 +25,8 @@ export interface ProductCreationAttributes {
 })
 export class Products extends Model<Products, ProductCreationAttributes> {
   @PrimaryKey
-  @AutoIncrement
-  @Column(DataType.INTEGER)
+  @AutoIncrement // up level
+  @Column(DataType.INTEGER) 
   declare id: number;
 
   @Column({
@@ -52,7 +52,7 @@ export class Products extends Model<Products, ProductCreationAttributes> {
   })
   declare price: number;
 
-  @ForeignKey(() => Users)
+  @ForeignKey(() => Users) 
   @Column({
     type: DataType.INTEGER,
     allowNull: true,

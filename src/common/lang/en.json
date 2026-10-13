@@ -1,7 +1,7 @@
 {
     "login_failed" : "Login failed",
     "account_locked": "Account locked ",
-    "invalid_pasword": "Invalid pasword",
+    "invalid_password": "Invalid pasword",
     "user_already_exists" : "User already exists",
     "user_not_found": "User not found",
     "delete_user_succesful" : "Delete user succes",
@@ -12,5 +12,6 @@
     "jwt_secret_not_configured": "Jwt secret not configured",
     "invalid_or_expired_token": "Invalid or expired token",
     "product_not_found": "Product not found",
-    "product_deleted_successfully": "Product deleted successfully"
+    "product_deleted_successfully": "Product deleted successfully",
+    "only_delete_your_own_products": "You can only delete your own products"
 }

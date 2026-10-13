@@ -8,26 +8,21 @@ import {
   Min,
 } from 'class-validator';
 
-export class CreateProductDto {
+export class CreateProductDto { //name
   @IsString()
   @IsNotEmpty()
   name!: string;
 
-  @IsOptional()
+  @IsOptional() //description
   @IsString()
   description?: string;
 
-  @Type(() => Number)
+  @Type(() => Number) //price
   @IsNumber()
   @Min(0)
   @IsNotEmpty()
   price!: number;
 
-  @Type(() => Number)
-  @IsInt()
-  @Min(1)
-  @IsNotEmpty()
-  ownerId!: number;
 }
 
 export class QueryProductDto {
