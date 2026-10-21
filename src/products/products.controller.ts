@@ -32,8 +32,7 @@ export class ProductsController {
   @ApiBearerAuth('JWT-auth')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
-  @Roles(UserRole.CUSTOMER)
-
+  @Roles(UserRole.SELLER)
   create(@Body() createProductDto: CreateProductDto, @Req() req: any) {
     return this.productsService.createProduct(createProductDto, req.user.id);
   }
