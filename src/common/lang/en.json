@@ -1,0 +1,16 @@
+{
+    "login_failed" : "Login failed",
+    "account_locked": "Account locked ",
+    "invalid_pasword": "Invalid pasword",
+    "user_already_exists" : "User already exists",
+    "user_not_found": "User not found",
+    "delete_user_succesful" : "Delete user succes",
+    "user_found": "User found",
+    "admin_permission_required": "Admin permission required",
+    "token_not_provided": "Token not provided",
+    "invalid_token_format": "Invalid token format",
+    "jwt_secret_not_configured": "Jwt secret not configured",
+    "invalid_or_expired_token": "Invalid or expired token",
+    "product_not_found": "Product not found",
+    "product_deleted_successfully": "Product deleted successfully"
+}
