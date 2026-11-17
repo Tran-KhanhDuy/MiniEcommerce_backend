@@ -31,15 +31,14 @@ export class ProductsController {
   @Post()
   @ApiBearerAuth('JWT-auth')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
-  @Roles(UserRole.SELLER)
+  @Roles(UserRole.ADMIN, UserRole.SELLER)
   create(@Body() createProductDto: CreateProductDto, @Req() req: any) {
     return this.productsService.createProduct(createProductDto, req.user.id);
   }
 
   @Get()
   @ApiBearerAuth('JWT-auth')
-  @UseGuards(JwtAuthGuard,RolesGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
   findAll(@Query() query: QueryProductDto) {
     return this.productsService.findAll(query);
@@ -47,7 +46,7 @@ export class ProductsController {
 
   @Get(':id')
   @ApiBearerAuth('JWT-auth')
-  @UseGuards(JwtAuthGuard,RolesGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.productsService.findOne(id);
@@ -55,7 +54,7 @@ export class ProductsController {
 
   @Patch(':id')
   @ApiBearerAuth('JWT-auth')
- @UseGuards(JwtAuthGuard,RolesGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
   update(
     @Param('id', ParseIntPipe) id: number,
@@ -67,7 +66,7 @@ export class ProductsController {
   @Delete(':id')
   @ApiBearerAuth('JWT-auth')
   @UseGuards(JwtAuthGuard)
-  deleteProduct(@Param('id',ParseIntPipe)id: number){
+  deleteProduct(@Param('id', ParseIntPipe) id: number) {
     return this.productsService.deleteProduct(id);
   }
 }
